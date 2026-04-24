@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Reader - Edição Azul</title>
+    <title>English Reader - Edição Azul Profissional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .loading-shimmer {
@@ -47,23 +47,36 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        .placeholder-style {
-            color: #94a3b8;
-            font-style: italic;
+        .panel-header-title {
+            font-size: 11px;
+            font-weight: 900;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .content-typography {
+            font-size: 1.25rem;
+            line-height: 2.2;
             font-weight: 500;
+        }
+        @media (min-width: 768px) {
+            .content-typography {
+                font-size: 1.5rem;
+            }
         }
 
         .btn-standard {
-            height: 44px;
+            height: 40px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.7rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            padding-left: 1.25rem;
-            padding-right: 1.25rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
             border-radius: 0.75rem;
             transition: all 0.2s;
         }
@@ -89,25 +102,17 @@
             max-height: 0;
             opacity: 0;
             margin-bottom: 0;
-            padding-top: 0;
-            padding-bottom: 0;
+            padding: 0;
             pointer-events: none;
-            border-width: 0;
         }
 
-        .content-typography {
-            font-size: 1.25rem;
-            line-height: 2.2;
-            font-weight: 500;
-        }
-        @media (min-width: 768px) {
-            .content-typography {
-                font-size: 1.5rem;
-            }
+        .full-height-panel {
+            height: calc(100vh - 180px);
+            min-height: 500px;
         }
     </style>
 </head>
-<body class="bg-chalkboard min-h-screen font-sans text-slate-900">
+<body class="bg-chalkboard h-screen flex flex-col font-sans text-slate-900 overflow-hidden">
 
     <!-- Modal de Confirmação -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
@@ -121,9 +126,9 @@
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto p-4 md:p-8">
+    <div class="max-w-7xl w-full mx-auto p-4 md:p-8 flex flex-col flex-1 overflow-hidden">
         <!-- Header & Abas -->
-        <div class="flex items-center gap-2 mb-4 w-full">
+        <div class="flex items-center gap-2 mb-6 w-full shrink-0">
             <button id="btn-toggle-controls" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </button>
@@ -131,7 +136,7 @@
         </div>
 
         <!-- Painel de Controles -->
-        <div id="controls-section" class="bg-slate-100/95 backdrop-blur-lg p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 hidden-panel">
+        <div id="controls-section" class="bg-slate-100/95 backdrop-blur-lg p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 shrink-0 hidden-panel">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6">
                 <div class="flex flex-col gap-2 flex-1">
                     <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest px-1">Voz do Sistema</label>
@@ -149,45 +154,44 @@
             </div>
         </div>
 
-        <div class="flex flex-col md:grid md:grid-cols-12 gap-6 items-stretch">
-            <!-- Leitor Principal -->
-            <div class="md:col-span-6 w-full flex flex-col">
-                <div class="bg-white rounded-3xl shadow-2xl border border-emerald-900/10 overflow-hidden flex flex-col flex-1 min-h-[650px] relative">
-                    <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
-                        <span id="active-tab-title" class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Texto de Estudo</span>
+        <div class="flex flex-col md:grid md:grid-cols-12 gap-6 items-stretch flex-1 min-h-0">
+            <!-- Painel de Estudo -->
+            <div class="md:col-span-6 w-full flex flex-col min-h-0">
+                <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 relative full-height-panel md:h-auto">
+                    <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 shrink-0">
+                        <span id="active-tab-title" class="panel-header-title">ESTUDO 1</span>
                         <div class="flex gap-2">
-                            <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-md">EDITAR</button>
+                            <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">EDITAR</button>
                         </div>
                     </div>
                     
-                    <div id="text-container" class="relative flex-1 overflow-y-auto no-scrollbar pb-24">
+                    <div id="text-container" class="relative flex-1 overflow-y-auto no-scrollbar">
                         <textarea id="text-input" class="w-full h-full absolute inset-0 p-6 md:p-10 focus:outline-none resize-none text-slate-800 content-typography z-10 hidden" placeholder="Cole o seu texto em inglês aqui..."></textarea>
-                        <div id="text-display" class="p-6 md:p-10 text-slate-800 content-typography whitespace-pre-wrap"></div>
+                        <div id="text-display" class="p-6 md:p-10 text-slate-800 content-typography whitespace-pre-wrap pb-28"></div>
                     </div>
 
-                    <!-- Contêiner de Ações Inferiores (Dinâmico) -->
-                    <div id="study-actions-container" class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent pointer-events-none flex justify-center gap-2 hidden">
-                        <button id="btn-toggle-all" class="btn-standard bg-slate-800 hover:bg-slate-900 text-white shadow-lg pointer-events-auto min-w-[180px]">
+                    <div id="study-actions-container" class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent pointer-events-none flex justify-center gap-2 hidden z-20">
+                        <button id="btn-toggle-all" class="btn-standard bg-slate-800 hover:bg-slate-900 text-white shadow-xl pointer-events-auto min-w-[200px]">
                             SELECIONAR TUDO
                         </button>
-                        <button id="btn-speak-selection" class="btn-standard btn-icon-only bg-amber-500 hover:bg-amber-600 text-white shadow-lg pointer-events-auto hidden">
+                        <button id="btn-speak-selection" class="btn-standard btn-icon-only bg-amber-500 hover:bg-amber-600 text-white shadow-xl pointer-events-auto hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Dicionário / Tradutor -->
-            <div class="md:col-span-6 w-full flex flex-col">
-                <div class="bg-white rounded-3xl shadow-2xl border border-emerald-900/10 flex flex-col overflow-hidden flex-1 min-h-[650px]">
-                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
-                        <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest">Dicionário</h2>
-                        <button id="btn-translate-selected" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-md">TRADUZIR</button>
+            <!-- Painel de Dicionário -->
+            <div class="md:col-span-6 w-full flex flex-col min-h-0">
+                <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden flex-1 full-height-panel md:h-auto">
+                    <div class="p-4 border-b border-slate-100 bg-slate-50/80 flex justify-between items-center shrink-0">
+                        <h2 class="panel-header-title">DICIONÁRIO</h2>
+                        <button id="btn-translate-selected" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">TRADUZIR</button>
                     </div>
                     
                     <div id="translation-content" class="flex-1 overflow-y-auto no-scrollbar bg-white relative">
                         <div id="empty-state" class="p-6 md:p-10">
-                            <p class="content-typography placeholder-style">Selecione palavras no texto ao lado para ver a tradução aqui...</p>
+                            <p class="content-typography text-slate-400 italic">Selecione palavras no texto ao lado e clique em traduzir...</p>
                         </div>
 
                         <div id="result-state" class="hidden p-6 md:p-10">
@@ -255,6 +259,7 @@
 
         async function translateText(text) {
             const rawText = text.trim();
+            if (!rawText) return "";
             try {
                 const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawText)}&langpair=en|pt-BR&mt=1`;
                 const response = await fetch(url);
@@ -264,23 +269,17 @@
         }
 
         function checkProperNouns(text) {
-            const words = text.trim().split(' ');
+            if (!text) return false;
+            const words = text.trim().split(/\s+/);
             return words.length > 1 && words.some((w, i) => i >= 0 && /^[A-Z]/.test(w));
         }
 
-        // Função central para decidir se mostra o botão de Selecionar Tudo
         function updateStudyActionsVisibility() {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab) return;
-
             const hasText = currentTab.text.trim().length > 0;
             const isReadingMode = !currentTab.isEditing;
-
-            if (hasText && isReadingMode) {
-                studyActionsContainer.classList.remove('hidden');
-            } else {
-                studyActionsContainer.classList.add('hidden');
-            }
+            studyActionsContainer.classList.toggle('hidden', !(hasText && isReadingMode));
         }
 
         function updateDisplay() {
@@ -289,6 +288,7 @@
 
             const text = currentTab.text.trim();
             textDisplay.innerHTML = '';
+            
             if (!text) {
                 updateStudyActionsVisibility();
                 return;
@@ -334,17 +334,9 @@
             
             currentTab.selectedIndices.sort((a, b) => a - b);
             
-            const allSpans = Array.from(textDisplay.querySelectorAll('span'));
-            currentTab.dictionary.original = currentTab.selectedIndices
-                .map(idx => {
-                   const found = allSpans.find(s => parseInt(s.dataset.index) === idx);
-                   return found ? found.textContent : "";
-                })
-                .join(' ');
-
+            // Nota: O texto original agora NÃO é atualizado aqui para atender o pedido do usuário
             updateToggleAllButton();
             updateAudioButtonVisibility();
-            updateDictionaryView();
             saveData();
         }
 
@@ -353,27 +345,22 @@
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab || allSpans.length === 0) return;
             
-            if (currentTab.selectedIndices.length === allSpans.length) {
-                btnToggleAll.textContent = "DESSELECIONAR TUDO";
-            } else {
-                btnToggleAll.textContent = "SELECIONAR TUDO";
-            }
+            btnToggleAll.textContent = (currentTab.selectedIndices.length === allSpans.length) 
+                ? "DESSELECIONAR TUDO" 
+                : "SELECIONAR TUDO";
         }
 
         function updateAudioButtonVisibility() {
             const currentTab = tabs.find(t => t.id === activeTabId);
-            if (currentTab && currentTab.selectedIndices.length > 0) {
-                btnSpeakSelection.classList.remove('hidden');
-            } else {
-                btnSpeakSelection.classList.add('hidden');
-            }
+            btnSpeakSelection.classList.toggle('hidden', !(currentTab && currentTab.selectedIndices.length > 0));
         }
 
         function updateDictionaryView() {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab) return;
 
-            if (currentTab.selectedIndices.length === 0) {
+            // Se não houver nada salvo no dicionário da aba, mostra estado vazio
+            if (!currentTab.dictionary.original) {
                 resultState.classList.add('hidden');
                 emptyState.classList.remove('hidden');
             } else {
@@ -389,16 +376,26 @@
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab || currentTab.selectedIndices.length === 0) return;
 
+            // CAPTURA DO ORIGINAL: Só acontece agora, no clique do botão Traduzir
+            const allSpans = Array.from(textDisplay.querySelectorAll('span'));
+            const rawSelection = currentTab.selectedIndices
+                .map(idx => allSpans.find(s => parseInt(s.dataset.index) === idx)?.textContent || "")
+                .join(' ');
+            
+            currentTab.dictionary.original = rawSelection;
+
             emptyState.classList.add('hidden');
             resultState.classList.add('hidden');
             loadingState.classList.remove('hidden');
 
-            const translation = await translateText(currentTab.dictionary.original);
+            const translation = await translateText(rawSelection);
             currentTab.dictionary.translated = translation;
 
             loadingState.classList.add('hidden');
             resultState.classList.remove('hidden');
+            originalTextDisplay.innerText = rawSelection; // Atualiza UI original
             translatedTextDisplay.innerText = translation;
+            properNounWarning.classList.toggle('hidden', !checkProperNouns(rawSelection));
             saveData();
         };
 
@@ -422,7 +419,6 @@
             saveData();
         };
 
-        // Escuta digitação para atualizar o estado interno em tempo real
         textInput.oninput = () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (currentTab) currentTab.text = textInput.value;
@@ -438,12 +434,10 @@
                 currentTab.selectedIndices = allSpans.map(s => parseInt(s.dataset.index));
             } else {
                 currentTab.selectedIndices = [];
+                // Se desselecionar tudo, limpamos o dicionário para voltar ao estado de instrução
+                currentTab.dictionary.original = "";
                 currentTab.dictionary.translated = "";
             }
-
-            currentTab.dictionary.original = currentTab.selectedIndices
-                .map(idx => allSpans.find(s => parseInt(s.dataset.index) === idx)?.textContent || "")
-                .join(' ');
 
             updateDisplay();
             saveData();
@@ -453,8 +447,14 @@
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab || currentTab.selectedIndices.length === 0) return;
             
+            // Para o áudio usamos a seleção atual (mesmo que ainda não tenha clicado em traduzir)
+            const allSpans = Array.from(textDisplay.querySelectorAll('span'));
+            const textToSpeak = currentTab.selectedIndices
+                .map(idx => allSpans.find(s => parseInt(s.dataset.index) === idx)?.textContent || "")
+                .join(' ');
+
             window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(currentTab.dictionary.original);
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
             const voiceIndex = voiceSelect.value;
             if (voices[voiceIndex]) utterance.voice = voices[voiceIndex];
             utterance.rate = parseFloat(speedRange.value);
@@ -514,7 +514,7 @@
             tabsContainer.appendChild(addBtn);
 
             const activeIndex = tabs.findIndex(t => t.id === activeTabId);
-            activeTabTitle.textContent = activeIndex !== -1 ? `Estudo ${activeIndex + 1}` : "Inglês";
+            activeTabTitle.textContent = activeIndex !== -1 ? `ESTUDO ${activeIndex + 1}` : "ESTUDO";
         }
 
         function addTab() {

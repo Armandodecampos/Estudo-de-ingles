@@ -276,8 +276,9 @@
         }];
         let activeTabId = tabs[0].id;
         let showControls = false;
-        let selectedVoiceName = '';
+        let selectedVoiceIdentifier = '';
         let voices = [];
+        let currentUtterance = null;
         let draggedTabId = null;
         let tabToDeleteId = null;
 
@@ -294,7 +295,7 @@
 
         function saveData() {
             localStorage.setItem('reader_data_v3', JSON.stringify({ 
-                tabs, activeTabId, speed: speedRange.value, showControls, selectedVoiceName
+                tabs, activeTabId, speed: speedRange.value, showControls, selectedVoiceIdentifier
             }));
         }
 
@@ -307,7 +308,7 @@
                 speedRange.value = data.speed || "1.0";
                 speedValue.innerText = speedRange.value + 'x';
                 showControls = !!data.showControls;
-                selectedVoiceName = data.selectedVoiceName || '';
+                selectedVoiceIdentifier = data.selectedVoiceIdentifier || data.selectedVoiceName || '';
             }
             updateControlsVisibility();
             switchTab(activeTabId);
@@ -537,13 +538,22 @@
             const currentTab = tabs.find(t => t.id === activeTabId);
             const all = Array.from(textDisplay.querySelectorAll('span'));
             const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
+
             window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            const selectedVoice = voices.find(v => v.name === voiceSelect.value);
-            if (selectedVoice) utterance.voice = selectedVoice;
-            utterance.rate = parseFloat(speedRange.value);
-            window.speechSynthesis.speak(utterance);
+
+            // Short delay to ensure cancel is processed before new speak
+            setTimeout(() => {
+                currentUtterance = new SpeechSynthesisUtterance(text);
+                const selectedVoice = voices.find(v => (v.voiceURI || v.name) === voiceSelect.value);
+                if (selectedVoice) {
+                    currentUtterance.voice = selectedVoice;
+                    currentUtterance.lang = selectedVoice.lang;
+                } else {
+                    currentUtterance.lang = 'en-US';
+                }
+                currentUtterance.rate = parseFloat(speedRange.value);
+                window.speechSynthesis.speak(currentUtterance);
+            }, 50);
         };
 
         function populateVoices() {
@@ -553,17 +563,17 @@
             voices = allVoices.filter(v => v.lang.startsWith('en'));
             if (voices.length === 0) voices = allVoices; // Fallback if no English voices found
 
-            voiceSelect.innerHTML = voices.map((v) => `<option value="${v.name}">${v.name}</option>`).join('');
+            voiceSelect.innerHTML = voices.map((v) => `<option value="${v.voiceURI || v.name}">${v.name} (${v.lang})</option>`).join('');
 
-            if (selectedVoiceName && voices.some(v => v.name === selectedVoiceName)) {
-                voiceSelect.value = selectedVoiceName;
+            if (selectedVoiceIdentifier && voices.some(v => (v.voiceURI || v.name) === selectedVoiceIdentifier)) {
+                voiceSelect.value = selectedVoiceIdentifier;
             } else if (voices.length > 0) {
-                selectedVoiceName = voiceSelect.value;
+                selectedVoiceIdentifier = voiceSelect.value;
             }
         }
 
         voiceSelect.onchange = () => {
-            selectedVoiceName = voiceSelect.value;
+            selectedVoiceIdentifier = voiceSelect.value;
             saveData();
         };
 

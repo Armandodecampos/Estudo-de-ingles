@@ -228,7 +228,6 @@
                         <div id="result-state" class="hidden p-6 md:p-10">
                             <div class="pt-2">
                                 <p id="translated-text" class="text-slate-800 content-typography font-bold"></p>
-                                <p id="proper-noun-warning" class="hidden mt-6 text-sm text-blue-500 italic">Nota: Nomes próprios identificados.</p>
                             </div>
                         </div>
 
@@ -262,7 +261,6 @@
         const resultState = document.getElementById('result-state');
         const loadingState = document.getElementById('loading-state');
         const translatedTextDisplay = document.getElementById('translated-text');
-        const properNounWarning = document.getElementById('proper-noun-warning');
 
         const confirmModal = document.getElementById('confirm-modal');
         const renameModal = document.getElementById('rename-modal');
@@ -281,11 +279,6 @@
         let voices = [];
         let draggedTabId = null;
         let tabToDeleteId = null;
-
-        function checkProperNouns(text) {
-            const words = text.split(/\s+/);
-            return words.some(word => word.length > 0 && word[0] === word[0].toUpperCase() && /[a-z]/.test(word));
-        }
 
         async function translateText(text) {
             const rawText = text.trim();
@@ -336,7 +329,6 @@
                 emptyState.classList.add('hidden');
                 resultState.classList.remove('hidden');
                 translatedTextDisplay.innerText = currentTab.dictionary.translated || "...";
-                properNounWarning.classList.toggle('hidden', !checkProperNouns(currentTab.dictionary.original));
             }
         }
 

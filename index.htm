@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -82,7 +82,6 @@
         }
 
         .btn-standard:active { transform: scale(0.95); }
-        .btn-icon-only { width: 44px; padding-left: 0; padding-right: 0; }
 
         .tab-active {
             background-color: white !important;
@@ -90,7 +89,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        /* Estilos para Drag and Drop */
         .tab-dragging {
             opacity: 0.4;
             transform: scale(0.95);
@@ -125,59 +123,56 @@
 </head>
 <body class="bg-chalkboard h-screen flex flex-col font-sans text-slate-900 overflow-hidden">
 
-    <!-- Modal de Confirmação Exclusão -->
+    <!-- Modais de Interface -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl">
-            <h3 class="text-xl font-black text-slate-900 mb-2 text-center">Excluir aba?</h3>
-            <p class="text-slate-500 mb-8 leading-relaxed text-center">Isso apagará permanentemente o conteúdo desta aba.</p>
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center">
+            <h3 class="text-xl font-black text-slate-900 mb-2">Eliminar aba?</h3>
+            <p class="text-slate-500 mb-8 leading-relaxed">Isto apagará permanentemente o conteúdo desta aba.</p>
             <div class="flex gap-3">
                 <button id="modal-cancel" class="flex-1 h-12 rounded-xl bg-slate-100 text-slate-700 font-bold">CANCELAR</button>
-                <button id="modal-confirm" class="flex-1 h-12 rounded-xl bg-red-600 text-white font-bold">EXCLUIR</button>
+                <button id="modal-confirm" class="flex-1 h-12 rounded-xl bg-red-600 text-white font-bold">ELIMINAR</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Renomear Aba -->
     <div id="rename-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl">
-            <h3 class="text-xl font-black text-slate-900 mb-4 text-center">Renomear Aba</h3>
-            <input type="text" id="rename-input" class="w-full h-12 px-4 mb-6 rounded-xl border border-slate-300 focus:border-blue-500 outline-none text-center font-bold" maxlength="15" placeholder="Nome da aba">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center">
+            <h3 class="text-xl font-black text-slate-900 mb-4">Renomear Aba</h3>
+            <input type="text" id="rename-input" class="w-full h-12 px-4 mb-6 rounded-xl border border-slate-300 focus:border-blue-500 outline-none text-center font-bold" maxlength="15">
             <div class="flex gap-3">
                 <button id="rename-cancel" class="flex-1 h-12 rounded-xl bg-slate-100 text-slate-700 font-bold">CANCELAR</button>
-                <button id="rename-confirm" class="flex-1 h-12 rounded-xl bg-blue-600 text-white font-bold">SALVAR</button>
+                <button id="rename-confirm" class="flex-1 h-12 rounded-xl bg-blue-600 text-white font-bold">GUARDAR</button>
             </div>
         </div>
     </div>
 
     <div class="max-w-7xl w-full mx-auto p-4 md:p-8 flex flex-col flex-1 overflow-hidden">
-        <!-- Header & Abas -->
+        <!-- Barra Superior -->
         <div class="flex items-center gap-2 mb-6 w-full shrink-0">
-            <button id="btn-toggle-controls" title="Configurações de Voz" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <button id="btn-toggle-controls" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </button>
-            <!-- O container de abas agora é a zona de drop -->
             <div id="tabs-container" class="flex items-center gap-1 flex-1 min-w-0 overflow-x-auto no-scrollbar py-1"></div>
-            
             <div class="flex items-center gap-1 shrink-0">
-                <button id="btn-rename-tab" title="Renomear aba ativa" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all">
+                <button id="btn-rename-tab" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                 </button>
-                <button id="btn-add-tab" title="Nova aba" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all">
-                    <span class="text-xl leading-none">+</span>
+                <button id="btn-add-tab" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all">
+                    <span class="text-xl">+</span>
                 </button>
             </div>
         </div>
 
-        <!-- Painel de Controles -->
-        <div id="controls-section" class="bg-slate-100/95 backdrop-blur-lg p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 shrink-0 hidden-panel">
+        <!-- Painel de Voz -->
+        <div id="controls-section" class="bg-slate-100 p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 shrink-0 hidden-panel">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6">
                 <div class="flex flex-col gap-2 flex-1">
-                    <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest px-1">Voz do Sistema</label>
+                    <label class="panel-header-title px-1">Voz do Sistema</label>
                     <select id="voice-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none"></select>
                 </div>
                 <div class="flex flex-col gap-2 w-full sm:w-56">
                     <div class="flex justify-between items-center px-1">
-                        <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Velocidade</label>
+                        <label class="panel-header-title">Velocidade</label>
                         <span id="speed-value" class="text-sm font-bold text-white bg-blue-700 px-3 py-0.5 rounded-full">1.0x</span>
                     </div>
                     <div class="h-[44px] flex items-center">
@@ -187,62 +182,52 @@
             </div>
         </div>
 
+        <!-- Layout Principal -->
         <div class="flex flex-col md:grid md:grid-cols-12 gap-6 items-stretch flex-1 min-h-0">
-            <!-- Painel de Estudo -->
+            <!-- Painel de Texto -->
             <div class="md:col-span-6 w-full flex flex-col min-h-0">
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 relative full-height-panel md:h-auto">
                     <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 shrink-0">
-                        <span id="active-tab-title" class="panel-header-title">ESTUDO 1</span>
-                        <div class="flex gap-2">
-                            <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">EDITAR</button>
-                        </div>
+                        <span id="active-tab-title" class="panel-header-title">CONTEÚDO</span>
+                        <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">EDITAR</button>
                     </div>
                     
                     <div id="text-container" class="relative flex-1 overflow-y-auto no-scrollbar">
-                        <textarea id="text-input" class="w-full h-full absolute inset-0 p-6 md:p-10 focus:outline-none resize-none text-slate-800 content-typography z-10 hidden" placeholder="Cole o seu texto em inglês aqui..."></textarea>
+                        <textarea id="text-input" class="w-full h-full absolute inset-0 p-6 md:p-10 focus:outline-none resize-none text-slate-800 content-typography z-10 hidden" placeholder="Insira o texto em inglês..."></textarea>
                         <div id="text-display" class="p-6 md:p-10 text-slate-800 content-typography whitespace-pre-wrap pb-28"></div>
                     </div>
 
                     <div id="study-actions-container" class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent pointer-events-none flex justify-center gap-2 hidden z-20">
-                        <button id="btn-toggle-all" class="btn-standard bg-slate-800 hover:bg-slate-900 text-white shadow-xl pointer-events-auto min-w-[200px]">
-                            SELECIONAR TUDO
-                        </button>
-                        <button id="btn-speak-selection" class="btn-standard btn-icon-only bg-amber-500 hover:bg-amber-600 text-white shadow-xl pointer-events-auto hidden">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        <button id="btn-toggle-all" class="btn-standard bg-slate-800 hover:bg-slate-900 text-white shadow-xl pointer-events-auto min-w-[180px]">SELECIONAR TUDO</button>
+                        <button id="btn-speak-selection" class="btn-standard w-[44px] bg-amber-500 hover:bg-amber-600 text-white shadow-xl pointer-events-auto hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Painel de Dicionário -->
+            <!-- Painel de Tradução -->
             <div class="md:col-span-6 w-full flex flex-col min-h-0">
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden flex-1 full-height-panel md:h-auto">
                     <div class="p-4 border-b border-slate-100 bg-slate-50/80 flex justify-between items-center shrink-0">
-                        <h2 class="panel-header-title">DICIONÁRIO</h2>
+                        <h2 class="panel-header-title">TRADUTOR</h2>
                         <button id="btn-translate-selected" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">TRADUZIR</button>
                     </div>
                     
                     <div id="translation-content" class="flex-1 overflow-y-auto no-scrollbar bg-white relative">
                         <div id="empty-state" class="p-6 md:p-10">
-                            <p class="content-typography text-slate-400 italic">Selecione palavras no texto ao lado e clique em traduzir...</p>
+                            <p class="content-typography text-slate-400 italic">Selecione a/as palavra/as ao lado e clique em traduzir...</p>
                         </div>
 
                         <div id="result-state" class="hidden p-6 md:p-10">
-                            <div class="mb-8">
-                                <span class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-3 block">Original</span>
-                                <p id="original-text" class="text-slate-900 content-typography"></p>
-                            </div>
-                            
-                            <div class="border-t border-slate-100 pt-8">
-                                <span class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-3 block">Tradução</span>
+                            <div class="pt-2">
                                 <p id="translated-text" class="text-slate-800 content-typography font-bold"></p>
-                                <p id="proper-noun-warning" class="hidden mt-6 text-sm text-blue-500 italic font-normal">Nota: Nomes próprios foram preservados.</p>
+                                <p id="proper-noun-warning" class="hidden mt-6 text-sm text-blue-500 italic">Nota: Nomes próprios identificados.</p>
                             </div>
                         </div>
 
                         <div id="loading-state" class="hidden p-6 md:p-10 space-y-4">
                             <div class="h-8 w-full loading-shimmer rounded-lg"></div>
-                            <div class="h-8 w-5/6 loading-shimmer rounded-lg"></div>
                             <div class="h-8 w-4/6 loading-shimmer rounded-lg"></div>
                         </div>
                     </div>
@@ -266,27 +251,16 @@
         const speedValue = document.getElementById('speed-value');
         const tabsContainer = document.getElementById('tabs-container');
         const activeTabTitle = document.getElementById('active-tab-title');
+        
         const emptyState = document.getElementById('empty-state');
         const resultState = document.getElementById('result-state');
         const loadingState = document.getElementById('loading-state');
-        const originalTextDisplay = document.getElementById('original-text');
         const translatedTextDisplay = document.getElementById('translated-text');
         const properNounWarning = document.getElementById('proper-noun-warning');
 
-        // Modais
         const confirmModal = document.getElementById('confirm-modal');
-        const modalConfirm = document.getElementById('modal-confirm');
-        const modalCancel = document.getElementById('modal-cancel');
-        
         const renameModal = document.getElementById('rename-modal');
         const renameInput = document.getElementById('rename-input');
-        const renameConfirm = document.getElementById('rename-confirm');
-        const renameCancel = document.getElementById('rename-cancel');
-        const btnRenameTab = document.getElementById('btn-rename-tab');
-        const btnAddTab = document.getElementById('btn-add-tab');
-
-        let tabToDeleteId = null;
-        let draggedTabId = null;
 
         let tabs = [{ 
             id: Date.now(), 
@@ -299,6 +273,13 @@
         let activeTabId = tabs[0].id;
         let showControls = false;
         let voices = [];
+        let draggedTabId = null;
+        let tabToDeleteId = null;
+
+        function checkProperNouns(text) {
+            const words = text.split(/\s+/);
+            return words.some(word => word.length > 0 && word[0] === word[0].toUpperCase() && /[a-z]/.test(word));
+        }
 
         async function translateText(text) {
             const rawText = text.trim();
@@ -307,51 +288,78 @@
                 const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawText)}&langpair=en|pt-BR&mt=1`;
                 const response = await fetch(url);
                 const data = await response.json();
-                return data.responseData?.translatedText || "Tradução não disponível.";
-            } catch (err) { return "Erro ao ligar ao tradutor."; }
+                return data.responseData?.translatedText || "Tradução indisponível.";
+            } catch (err) { return "Erro na tradução."; }
+        }
+
+        function saveData() {
+            localStorage.setItem('reader_data_v3', JSON.stringify({ 
+                tabs, activeTabId, speed: speedRange.value, showControls 
+            }));
+        }
+
+        function loadData() {
+            const dataRaw = localStorage.getItem('reader_data_v3');
+            if (dataRaw) {
+                const data = JSON.parse(dataRaw);
+                tabs = data.tabs || tabs;
+                activeTabId = data.activeTabId || tabs[0].id;
+                speedRange.value = data.speed || "1.0";
+                speedValue.innerText = speedRange.value + 'x';
+                showControls = !!data.showControls;
+            }
+            updateControlsVisibility();
+            switchTab(activeTabId);
         }
 
         function updateStudyActionsVisibility() {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab) return;
             const hasText = currentTab.text.trim().length > 0;
-            const isReadingMode = !currentTab.isEditing;
-            studyActionsContainer.classList.toggle('hidden', !(hasText && isReadingMode));
+            studyActionsContainer.classList.toggle('hidden', !(hasText && !currentTab.isEditing));
+        }
+
+        function updateDictionaryView() {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (!currentTab) return;
+
+            if (!currentTab.dictionary.original) {
+                resultState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                resultState.classList.remove('hidden');
+                translatedTextDisplay.innerText = currentTab.dictionary.translated || "...";
+                properNounWarning.classList.toggle('hidden', !checkProperNouns(currentTab.dictionary.original));
+            }
         }
 
         function updateDisplay() {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab) return;
 
-            const text = currentTab.text.trim();
             textDisplay.innerHTML = '';
-            
-            if (!text) {
-                updateStudyActionsVisibility();
-                return;
-            }
-
-            let wordCounter = 0;
-            text.split(/(\s+)/).forEach(fragment => {
-                if (/\s+/.test(fragment)) {
-                    textDisplay.appendChild(document.createTextNode(fragment));
-                } else {
-                    const span = document.createElement('span');
-                    span.textContent = fragment;
-                    const currentIndex = wordCounter++;
-                    span.dataset.index = currentIndex;
-
-                    if (currentTab.selectedIndices.includes(currentIndex)) {
-                        span.classList.add('word-highlight');
+            if (currentTab.text.trim()) {
+                let wordCounter = 0;
+                currentTab.text.split(/(\s+)/).forEach(fragment => {
+                    if (/\s+/.test(fragment)) {
+                        textDisplay.appendChild(document.createTextNode(fragment));
+                    } else {
+                        const span = document.createElement('span');
+                        span.textContent = fragment;
+                        const idx = wordCounter++;
+                        span.dataset.index = idx;
+                        if (currentTab.selectedIndices.includes(idx)) span.classList.add('word-highlight');
+                        span.onclick = () => handleWordClick(span, idx);
+                        textDisplay.appendChild(span);
                     }
-
-                    span.onclick = () => handleWordClick(span, currentIndex);
-                    textDisplay.appendChild(span);
-                }
-            });
+                });
+            }
             
-            updateToggleAllButton();
-            updateAudioButtonVisibility();
+            btnToggleAll.textContent = (currentTab.selectedIndices.length > 0 && currentTab.selectedIndices.length === textDisplay.querySelectorAll('span').length) 
+                ? "LIMPAR SELEÇÃO" : "SELECIONAR TUDO";
+            
+            btnSpeakSelection.classList.toggle('hidden', currentTab.selectedIndices.length === 0);
             updateDictionaryView();
             updateStudyActionsVisibility();
         }
@@ -370,294 +378,136 @@
             }
             
             currentTab.selectedIndices.sort((a, b) => a - b);
-            updateToggleAllButton();
-            updateAudioButtonVisibility();
-            saveData();
-        }
-
-        function updateToggleAllButton() {
-            const allSpans = Array.from(textDisplay.querySelectorAll('span'));
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab || allSpans.length === 0) return;
-            
-            btnToggleAll.textContent = (currentTab.selectedIndices.length === allSpans.length) 
-                ? "DESSELECIONAR TUDO" 
-                : "SELECIONAR TUDO";
-        }
-
-        function updateAudioButtonVisibility() {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            btnSpeakSelection.classList.toggle('hidden', !(currentTab && currentTab.selectedIndices.length > 0));
-        }
-
-        function updateDictionaryView() {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab) return;
-
-            if (!currentTab.dictionary.original) {
-                resultState.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                resultState.classList.remove('hidden');
-                originalTextDisplay.innerText = currentTab.dictionary.original;
-                translatedTextDisplay.innerText = currentTab.dictionary.translated || "...";
-                properNounWarning.classList.toggle('hidden', !checkProperNouns(currentTab.dictionary.original));
-            }
-        }
-
-        btnTranslateSelected.onclick = async () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab || currentTab.selectedIndices.length === 0) return;
-
-            const allSpans = Array.from(textDisplay.querySelectorAll('span'));
-            const rawSelection = currentTab.selectedIndices
-                .map(idx => allSpans.find(s => parseInt(s.dataset.index) === idx)?.textContent || "")
-                .join(' ');
-            
-            currentTab.dictionary.original = rawSelection;
-            emptyState.classList.add('hidden');
-            resultState.classList.add('hidden');
-            loadingState.classList.remove('hidden');
-
-            const translation = await translateText(rawSelection);
-            currentTab.dictionary.translated = translation;
-
-            loadingState.classList.add('hidden');
-            resultState.classList.remove('hidden');
-            originalTextDisplay.innerText = rawSelection;
-            translatedTextDisplay.innerText = translation;
-            properNounWarning.classList.toggle('hidden', !checkProperNouns(rawSelection));
-            saveData();
-        };
-
-        btnEditText.onclick = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab) return;
-
-            if (currentTab.isEditing) {
-                currentTab.isEditing = false;
-                currentTab.text = textInput.value;
-                textInput.classList.add('hidden');
-                btnEditText.textContent = "EDITAR";
-                updateDisplay();
-            } else {
-                currentTab.isEditing = true;
-                textInput.classList.remove('hidden');
-                textInput.focus();
-                btnEditText.textContent = "ESTUDAR";
-                updateStudyActionsVisibility();
-            }
-            saveData();
-        };
-
-        textInput.oninput = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (currentTab) currentTab.text = textInput.value;
-            saveData();
-        };
-
-        btnToggleAll.onclick = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab || currentTab.isEditing) return;
-            const allSpans = Array.from(textDisplay.querySelectorAll('span'));
-            
-            if (currentTab.selectedIndices.length < allSpans.length) {
-                currentTab.selectedIndices = allSpans.map(s => parseInt(s.dataset.index));
-            } else {
-                currentTab.selectedIndices = [];
-                currentTab.dictionary.original = "";
-                currentTab.dictionary.translated = "";
-            }
-
             updateDisplay();
             saveData();
-        };
-
-        btnSpeakSelection.onclick = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab || currentTab.selectedIndices.length === 0) return;
-            
-            const allSpans = Array.from(textDisplay.querySelectorAll('span'));
-            const textToSpeak = currentTab.selectedIndices
-                .map(idx => allSpans.find(s => parseInt(s.dataset.index) === idx)?.textContent || "")
-                .join(' ');
-
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(textToSpeak);
-            const voiceIndex = voiceSelect.value;
-            if (voices[voiceIndex]) utterance.voice = voices[voiceIndex];
-            utterance.rate = parseFloat(speedRange.value);
-            window.speechSynthesis.speak(utterance);
-        };
-
-        function switchTab(id) {
-            const prevTab = tabs.find(t => t.id === activeTabId);
-            if (prevTab) prevTab.text = textInput.value;
-            
-            activeTabId = id;
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (currentTab) {
-                textInput.value = currentTab.text;
-                if (currentTab.isEditing) {
-                    textInput.classList.remove('hidden');
-                    btnEditText.textContent = "ESTUDAR";
-                    textDisplay.innerHTML = "";
-                    updateDictionaryView();
-                    updateStudyActionsVisibility();
-                } else {
-                    textInput.classList.add('hidden');
-                    btnEditText.textContent = "EDITAR";
-                    updateDisplay();
-                }
-            }
-            renderTabs();
-            saveData();
-        }
-
-        // --- LÓGICA DE DRAG AND DROP ---
-        function handleDragStart(e, tabId) {
-            draggedTabId = tabId;
-            e.currentTarget.classList.add('tab-dragging');
-            e.dataTransfer.effectAllowed = 'move';
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.currentTarget.classList.add('tab-drag-over');
-            return false;
-        }
-
-        function handleDragLeave(e) {
-            e.currentTarget.classList.remove('tab-drag-over');
-        }
-
-        function handleDrop(e, targetTabId) {
-            e.stopPropagation();
-            e.preventDefault();
-            
-            if (draggedTabId !== targetTabId) {
-                const draggedIndex = tabs.findIndex(t => t.id === draggedTabId);
-                const targetIndex = tabs.findIndex(t => t.id === targetTabId);
-                
-                // Reordenar o array
-                const [movedTab] = tabs.splice(draggedIndex, 1);
-                tabs.splice(targetIndex, 0, movedTab);
-                
-                renderTabs();
-                saveData();
-            }
-            return false;
-        }
-
-        function handleDragEnd(e) {
-            e.currentTarget.classList.remove('tab-dragging');
-            const allTabs = document.querySelectorAll('#tabs-container > div');
-            allTabs.forEach(t => t.classList.remove('tab-drag-over'));
         }
 
         function renderTabs() {
             tabsContainer.innerHTML = '';
-            tabs.forEach((tab, index) => {
+            tabs.forEach(tab => {
                 const isActive = tab.id === activeTabId;
                 const tabEl = document.createElement('div');
-                
-                // Atributos de Drag and Drop
                 tabEl.draggable = true;
                 tabEl.className = `min-w-[100px] max-w-[180px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold cursor-grab active:cursor-grabbing transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'}`;
                 
-                // Eventos de Drag and Drop
-                tabEl.ondragstart = (e) => handleDragStart(e, tab.id);
-                tabEl.ondragover = (e) => handleDragOver(e);
-                tabEl.ondragleave = (e) => handleDragLeave(e);
-                tabEl.ondrop = (e) => handleDrop(e, tab.id);
-                tabEl.ondragend = (e) => handleDragEnd(e);
-
-                const nameSpan = document.createElement('span');
-                nameSpan.className = "truncate flex-1 text-center select-none pointer-events-none"; // pointer-events-none para não interferir no drag do pai
-                nameSpan.textContent = tab.name;
-                
-                // Como nameSpan tem pointer-events-none, o clique deve ser no elemento pai
-                tabEl.onclick = (e) => {
-                    // Evita disparar se estiver clicando no botão de excluir
-                    if (e.target === tabEl || e.target === nameSpan) {
-                        switchTab(tab.id);
+                tabEl.ondragstart = (e) => {
+                    draggedTabId = tab.id;
+                    tabEl.classList.add('tab-dragging');
+                };
+                tabEl.ondragover = (e) => {
+                    e.preventDefault();
+                    tabEl.classList.add('tab-drag-over');
+                };
+                tabEl.ondragleave = () => tabEl.classList.remove('tab-drag-over');
+                tabEl.ondrop = (e) => {
+                    e.preventDefault();
+                    if (draggedTabId !== tab.id) {
+                        const fromIdx = tabs.findIndex(t => t.id === draggedTabId);
+                        const toIdx = tabs.findIndex(t => t.id === tab.id);
+                        const [moved] = tabs.splice(fromIdx, 1);
+                        tabs.splice(toIdx, 0, moved);
+                        renderTabs();
+                        saveData();
                     }
                 };
+                tabEl.ondragend = () => {
+                    tabEl.classList.remove('tab-dragging');
+                    document.querySelectorAll('.tab-drag-over').forEach(el => el.classList.remove('tab-drag-over'));
+                };
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = "truncate flex-1 pointer-events-none";
+                nameSpan.textContent = tab.name;
+                
+                tabEl.onclick = (e) => { if (e.target === tabEl) switchTab(tab.id); };
                 
                 const delBtn = document.createElement('button');
                 delBtn.innerHTML = '&times;';
-                delBtn.title = "Excluir aba";
-                delBtn.className = `text-lg leading-none opacity-50 hover:opacity-100 hover:text-red-500 transition-opacity ml-2 shrink-0`;
-                delBtn.onclick = (e) => { 
-                    e.stopPropagation(); 
-                    requestDeleteTab(tab.id); 
-                };
+                delBtn.className = "ml-2 opacity-50 hover:opacity-100 text-lg leading-none";
+                delBtn.onclick = (e) => { e.stopPropagation(); tabToDeleteId = tab.id; confirmModal.classList.remove('hidden'); };
 
                 tabEl.appendChild(nameSpan);
                 if (tabs.length > 1) tabEl.appendChild(delBtn);
                 tabsContainer.appendChild(tabEl);
             });
-
             const currentTab = tabs.find(t => t.id === activeTabId);
-            activeTabTitle.textContent = currentTab ? currentTab.name.toUpperCase() : "ESTUDO";
+            activeTabTitle.textContent = currentTab ? currentTab.name.toUpperCase() : "ABA";
         }
 
-        btnAddTab.onclick = () => {
-            const newId = Date.now();
-            tabs.push({ 
-                id: newId, 
-                name: `Aba ${tabs.length + 1}`, 
-                text: "", 
-                isEditing: true, 
-                selectedIndices: [], 
-                dictionary: { original: "", translated: "" } 
-            });
-            switchTab(newId);
+        function switchTab(id) {
+            activeTabId = id;
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (currentTab) {
+                textInput.value = currentTab.text;
+                textInput.classList.toggle('hidden', !currentTab.isEditing);
+                btnEditText.textContent = currentTab.isEditing ? "ESTUDAR" : "EDITAR";
+                updateDisplay();
+                renderTabs();
+            }
+        }
+
+        btnEditText.onclick = () => {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (!currentTab) return;
+            currentTab.isEditing = !currentTab.isEditing;
+            currentTab.text = textInput.value;
+            saveData();
+            switchTab(activeTabId);
         };
 
-        btnRenameTab.onclick = () => {
+        btnTranslateSelected.onclick = async () => {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (!currentTab || currentTab.selectedIndices.length === 0) return;
+            
+            const allSpans = Array.from(textDisplay.querySelectorAll('span'));
+            const selection = currentTab.selectedIndices.map(i => allSpans.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
+            
+            currentTab.dictionary.original = selection;
+            resultState.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+
+            currentTab.dictionary.translated = await translateText(selection);
+            
+            loadingState.classList.add('hidden');
+            updateDictionaryView();
+            saveData();
+        };
+
+        document.getElementById('btn-add-tab').onclick = () => {
+            const id = Date.now();
+            tabs.push({ id, name: `Aba ${tabs.length + 1}`, text: "", isEditing: true, selectedIndices: [], dictionary: { original: "", translated: "" } });
+            switchTab(id);
+        };
+
+        document.getElementById('btn-rename-tab').onclick = () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab) return;
             renameInput.value = currentTab.name;
             renameModal.classList.remove('hidden');
-            renameInput.focus();
         };
 
-        renameConfirm.onclick = () => {
-            const newName = renameInput.value.trim();
-            if (newName) {
-                const currentTab = tabs.find(t => t.id === activeTabId);
-                if (currentTab) {
-                    currentTab.name = newName;
-                    renderTabs();
-                    saveData();
-                }
+        document.getElementById('rename-confirm').onclick = () => {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (currentTab && renameInput.value.trim()) {
+                currentTab.name = renameInput.value.trim();
+                renderTabs();
+                saveData();
             }
             renameModal.classList.add('hidden');
         };
 
-        renameCancel.onclick = () => renameModal.classList.add('hidden');
-
-        function requestDeleteTab(id) {
-            tabToDeleteId = id;
-            confirmModal.classList.remove('hidden');
-        }
-
-        modalCancel.onclick = () => confirmModal.classList.add('hidden');
-        modalConfirm.onclick = () => {
-            if (tabToDeleteId && tabs.length > 1) {
+        document.getElementById('modal-confirm').onclick = () => {
+            if (tabs.length > 1) {
                 tabs = tabs.filter(t => t.id !== tabToDeleteId);
                 if (activeTabId === tabToDeleteId) activeTabId = tabs[0].id;
                 switchTab(activeTabId);
+                saveData();
             }
             confirmModal.classList.add('hidden');
         };
 
-        function populateVoices() {
-            voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-            voiceSelect.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name}</option>`).join('');
-        }
+        document.getElementById('modal-cancel').onclick = () => confirmModal.classList.add('hidden');
+        document.getElementById('rename-cancel').onclick = () => renameModal.classList.add('hidden');
 
         btnToggleControls.onclick = () => {
             showControls = !showControls;
@@ -666,44 +516,43 @@
         };
 
         function updateControlsVisibility() {
-            if (showControls) {
-                controlsSection.classList.remove('hidden-panel');
-                btnToggleControls.classList.add('bg-white/30', 'ring-2', 'ring-white/50');
+            controlsSection.classList.toggle('hidden-panel', !showControls);
+            btnToggleControls.classList.toggle('bg-white/30', showControls);
+        }
+
+        btnToggleAll.onclick = () => {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            const all = Array.from(textDisplay.querySelectorAll('span'));
+            if (currentTab.selectedIndices.length === all.length) {
+                currentTab.selectedIndices = [];
+                currentTab.dictionary = { original: "", translated: "" };
             } else {
-                controlsSection.classList.add('hidden-panel');
-                btnToggleControls.classList.remove('bg-white/30', 'ring-2', 'ring-white/50');
+                currentTab.selectedIndices = all.map(s => parseInt(s.dataset.index));
             }
-        }
+            updateDisplay();
+            saveData();
+        };
 
-        function saveData() {
-            localStorage.setItem('reader_tabs_drag_order', JSON.stringify({ 
-                tabs, 
-                activeTabId, 
-                speed: speedRange.value, 
-                showControls 
-            }));
-        }
+        btnSpeakSelection.onclick = () => {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            const all = Array.from(textDisplay.querySelectorAll('span'));
+            const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.voice = voices[voiceSelect.value];
+            utterance.rate = parseFloat(speedRange.value);
+            window.speechSynthesis.speak(utterance);
+        };
 
-        function loadData() {
-            const dataRaw = localStorage.getItem('reader_tabs_drag_order');
-            if (dataRaw) {
-                const data = JSON.parse(dataRaw);
-                tabs = data.tabs || tabs;
-                activeTabId = tabs.find(t => t.id === data.activeTabId) ? data.activeTabId : tabs[0].id;
-                speedRange.value = data.speed || "1.0";
-                speedValue.innerText = speedRange.value + 'x';
-                showControls = !!data.showControls;
-            }
-            updateControlsVisibility();
-            switchTab(activeTabId);
+        function populateVoices() {
+            voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+            voiceSelect.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name}</option>`).join('');
         }
 
         window.speechSynthesis.onvoiceschanged = populateVoices;
-        speedRange.oninput = () => {
-            speedValue.innerText = speedRange.value + 'x';
-            saveData();
-        };
-        
+        speedRange.oninput = () => { speedValue.innerText = speedRange.value + 'x'; saveData(); };
+        textInput.oninput = () => { const t = tabs.find(t => t.id === activeTabId); if (t) t.text = textInput.value; saveData(); };
+
         window.onload = () => {
             loadData();
             populateVoices();

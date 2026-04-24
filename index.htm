@@ -276,6 +276,7 @@
         }];
         let activeTabId = tabs[0].id;
         let showControls = false;
+        let selectedVoiceName = '';
         let voices = [];
         let draggedTabId = null;
         let tabToDeleteId = null;
@@ -293,7 +294,7 @@
 
         function saveData() {
             localStorage.setItem('reader_data_v3', JSON.stringify({ 
-                tabs, activeTabId, speed: speedRange.value, showControls 
+                tabs, activeTabId, speed: speedRange.value, showControls, selectedVoiceName
             }));
         }
 
@@ -306,6 +307,7 @@
                 speedRange.value = data.speed || "1.0";
                 speedValue.innerText = speedRange.value + 'x';
                 showControls = !!data.showControls;
+                selectedVoiceName = data.selectedVoiceName || '';
             }
             updateControlsVisibility();
             switchTab(activeTabId);
@@ -537,15 +539,33 @@
             const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.voice = voices[voiceSelect.value];
+            utterance.lang = 'en-US';
+            const selectedVoice = voices.find(v => v.name === voiceSelect.value);
+            if (selectedVoice) utterance.voice = selectedVoice;
             utterance.rate = parseFloat(speedRange.value);
             window.speechSynthesis.speak(utterance);
         };
 
         function populateVoices() {
-            voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
-            voiceSelect.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name}</option>`).join('');
+            const allVoices = window.speechSynthesis.getVoices();
+            if (allVoices.length === 0) return;
+
+            voices = allVoices.filter(v => v.lang.startsWith('en'));
+            if (voices.length === 0) voices = allVoices; // Fallback if no English voices found
+
+            voiceSelect.innerHTML = voices.map((v) => `<option value="${v.name}">${v.name}</option>`).join('');
+
+            if (selectedVoiceName && voices.some(v => v.name === selectedVoiceName)) {
+                voiceSelect.value = selectedVoiceName;
+            } else if (voices.length > 0) {
+                selectedVoiceName = voiceSelect.value;
+            }
         }
+
+        voiceSelect.onchange = () => {
+            selectedVoiceName = voiceSelect.value;
+            saveData();
+        };
 
         window.speechSynthesis.onvoiceschanged = populateVoices;
         speedRange.oninput = () => { speedValue.innerText = speedRange.value + 'x'; saveData(); };

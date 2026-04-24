@@ -68,17 +68,21 @@
                 <div class="bg-white rounded-3xl shadow-2xl border border-emerald-900/10 overflow-hidden flex flex-col">
                     <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                         <span class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Texto em Inglês</span>
-                        <div class="flex gap-3">
-                            <button id="btn-play-all" class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-lg active:scale-95 text-sm font-bold uppercase tracking-wider">
+                        <div class="flex gap-2 sm:gap-3">
+                            <button id="btn-play-all" class="flex items-center gap-2 px-3 sm:px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-lg active:scale-95 text-xs sm:text-sm font-bold uppercase tracking-wider">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                                 OUVIR
+                            </button>
+                            <!-- Novo botão Traduzir adicionado -->
+                            <button id="btn-translate-all" class="flex items-center gap-2 px-3 sm:px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all shadow-lg active:scale-95 text-xs sm:text-sm font-bold uppercase tracking-wider">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 8 6 6"></path><path d="m4 14 6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="m22 22-5-10-5 10"></path><path d="M14 18h6"></path></svg>
+                                TRADUZIR
                             </button>
                             <button id="btn-clear" class="p-2 text-slate-400 hover:text-rose-600 active:scale-90 transition-all" title="Limpar tudo">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                             </button>
                         </div>
                     </div>
-                    <!-- Cor do placeholder atualizada para melhor visibilidade -->
                     <textarea id="text-input" 
                         class="w-full h-72 md:h-[500px] p-6 focus:outline-none resize-none text-base md:text-lg text-slate-800 leading-relaxed placeholder:text-slate-400"
                         placeholder="Cole aqui o conteúdo que deseja estudar..."></textarea>
@@ -91,13 +95,13 @@
                     <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                         <h2 class="text-xs font-black text-slate-800 flex items-center gap-2 uppercase tracking-widest">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-600"><path d="m5 8 6 6"></path><path d="m4 14 6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="m22 22-5-10-5 10"></path><path d="M14 18h6"></path></svg>
-                            Tradução Direta
+                            Painel de Tradução
                         </h2>
                     </div>
                     
                     <div id="translation-content" class="p-6 min-h-[220px]">
                         <div id="empty-state" class="text-center text-slate-400 py-12">
-                            <p class="text-sm font-medium italic">Selecione uma frase no texto para ver a tradução aqui.</p>
+                            <p class="text-sm font-medium italic">Selecione uma frase ou use o botão 'TRADUZIR'.</p>
                         </div>
 
                         <div id="result-state" class="hidden animate-in fade-in duration-300">
@@ -108,12 +112,12 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                                     </button>
                                 </div>
-                                <p id="original-text" class="text-lg font-bold text-slate-900 break-words leading-tight"></p>
+                                <p id="original-text" class="text-lg font-bold text-slate-900 break-words leading-tight max-h-32 overflow-y-auto"></p>
                             </div>
                             
                             <div class="p-5 bg-emerald-50/80 rounded-2xl border border-emerald-200/60 ring-1 ring-emerald-500/5">
                                 <span class="text-[10px] font-black text-emerald-800 uppercase tracking-widest block mb-2 opacity-70">Tradução em Português</span>
-                                <p id="translated-text" class="text-slate-800 leading-relaxed text-lg font-semibold"></p>
+                                <p id="translated-text" class="text-slate-800 leading-relaxed text-lg font-semibold max-h-48 overflow-y-auto"></p>
                             </div>
                         </div>
 
@@ -131,6 +135,7 @@
     <script>
         const textInput = document.getElementById('text-input');
         const btnPlayAll = document.getElementById('btn-play-all');
+        const btnTranslateAll = document.getElementById('btn-translate-all');
         const btnClear = document.getElementById('btn-clear');
         const btnSpeakSelection = document.getElementById('btn-speak-selection');
         const voiceSelect = document.getElementById('voice-select');
@@ -229,7 +234,7 @@
         }
 
         async function translateText(text) {
-            if (!text || text.length < 1) return;
+            if (!text || text.trim().length < 1) return;
             
             emptyState.classList.add('hidden');
             resultState.classList.add('hidden');
@@ -238,7 +243,9 @@
             originalTextDisplay.innerText = text;
 
             try {
-                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|pt-BR`;
+                // Limitando o texto para tradução via API gratuita para evitar erros de URL muito longa
+                const textToTranslate = text.length > 500 ? text.substring(0, 500) + "..." : text;
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textToTranslate)}&langpair=en|pt-BR`;
                 const response = await fetch(url);
                 const data = await response.json();
                 
@@ -271,6 +278,15 @@
         }
 
         btnPlayAll.onclick = () => speak(textInput.value);
+        
+        btnTranslateAll.onclick = () => {
+            const fullText = textInput.value.trim();
+            if (fullText) {
+                lastSelection = fullText;
+                translateText(fullText);
+            }
+        };
+
         btnSpeakSelection.onclick = () => speak(lastSelection);
 
         btnClear.onclick = () => {

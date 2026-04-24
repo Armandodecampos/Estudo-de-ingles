@@ -208,6 +208,9 @@
                         <button id="btn-speak-selection" class="btn-standard w-[44px] bg-amber-500 hover:bg-amber-600 text-white shadow-xl pointer-events-auto hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                         </button>
+                        <button id="btn-stop-selection" class="btn-standard w-[44px] bg-red-500 hover:bg-red-600 text-white shadow-xl pointer-events-auto hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"></rect></svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -248,6 +251,7 @@
         const btnTranslateSelected = document.getElementById('btn-translate-selected');
         const btnToggleAll = document.getElementById('btn-toggle-all');
         const btnSpeakSelection = document.getElementById('btn-speak-selection');
+        const btnStopSelection = document.getElementById('btn-stop-selection');
         const studyActionsContainer = document.getElementById('study-actions-container');
         const btnToggleControls = document.getElementById('btn-toggle-controls');
         const controlsSection = document.getElementById('controls-section');
@@ -360,7 +364,9 @@
             btnToggleAll.textContent = (currentTab.selectedIndices.length > 0 && currentTab.selectedIndices.length === textDisplay.querySelectorAll('span').length) 
                 ? "LIMPAR SELEÇÃO" : "SELECIONAR TUDO";
             
-            btnSpeakSelection.classList.toggle('hidden', currentTab.selectedIndices.length === 0);
+            const hasSelection = currentTab.selectedIndices.length > 0;
+            btnSpeakSelection.classList.toggle('hidden', !hasSelection);
+            btnStopSelection.classList.toggle('hidden', !hasSelection);
             updateDictionaryView();
             updateStudyActionsVisibility();
         }
@@ -534,15 +540,20 @@
             saveData();
         };
 
+        btnStopSelection.onclick = () => {
+            window.speechSynthesis.cancel();
+        };
+
         btnSpeakSelection.onclick = () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             const all = Array.from(textDisplay.querySelectorAll('span'));
             const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
 
+            if (voices.length === 0) populateVoices();
             window.speechSynthesis.cancel();
 
-            // Short delay to ensure cancel is processed before new speak
-            setTimeout(() => {
+            const startSpeech = () => {
+                if (!text.trim()) return;
                 currentUtterance = new SpeechSynthesisUtterance(text);
                 const selectedVoice = voices.find(v => (v.voiceURI || v.name) === voiceSelect.value);
                 if (selectedVoice) {
@@ -553,7 +564,16 @@
                 }
                 currentUtterance.rate = parseFloat(speedRange.value);
                 window.speechSynthesis.speak(currentUtterance);
-            }, 50);
+            };
+
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            if (isAndroid) {
+                // Use a small delay on Android to ensure 'cancel' is processed.
+                setTimeout(startSpeech, 50);
+            } else {
+                // Direct synchronous call on Desktop to preserve user gesture context.
+                startSpeech();
+            }
         };
 
         function populateVoices() {

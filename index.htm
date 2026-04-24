@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Reader - Edição Simétrica</title>
+    <title>English Reader - Edição Azul</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .loading-shimmer {
@@ -28,11 +28,11 @@
         }
 
         .word-highlight {
-            background-color: #34d399 !important;
-            color: #064e3b !important;
+            background-color: #3b82f6 !important;
+            color: white !important;
             border-radius: 4px;
             transition: all 0.1s ease;
-            box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.4);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
         }
 
         #text-display span {
@@ -73,7 +73,7 @@
 
         .tab-active {
             background-color: white !important;
-            color: #064e3b !important;
+            color: #1e3a8a !important;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
@@ -109,7 +109,7 @@
 </head>
 <body class="bg-chalkboard min-h-screen font-sans text-slate-900">
 
-    <!-- Modal de Confirmação para deletar abas -->
+    <!-- Modal de Confirmação -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl">
             <h3 class="text-xl font-black text-slate-900 mb-2">Excluir aba?</h3>
@@ -122,7 +122,7 @@
     </div>
 
     <div class="max-w-7xl mx-auto p-4 md:p-8">
-        <!-- Header & Tabs -->
+        <!-- Header & Abas -->
         <div class="flex items-center gap-2 mb-4 w-full">
             <button id="btn-toggle-controls" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -130,7 +130,7 @@
             <div id="tabs-container" class="flex items-center gap-1 flex-1 min-w-0"></div>
         </div>
 
-        <!-- Painel de Controles de Voz -->
+        <!-- Painel de Controles -->
         <div id="controls-section" class="bg-slate-100/95 backdrop-blur-lg p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 hidden-panel">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6">
                 <div class="flex flex-col gap-2 flex-1">
@@ -140,23 +140,23 @@
                 <div class="flex flex-col gap-2 w-full sm:w-56">
                     <div class="flex justify-between items-center px-1">
                         <label class="text-[11px] font-black text-slate-600 uppercase tracking-widest">Velocidade</label>
-                        <span id="speed-value" class="text-sm font-bold text-white bg-emerald-700 px-3 py-0.5 rounded-full">1.0x</span>
+                        <span id="speed-value" class="text-sm font-bold text-white bg-blue-700 px-3 py-0.5 rounded-full">1.0x</span>
                     </div>
                     <div class="h-[44px] flex items-center">
-                        <input type="range" id="speed-range" min="0.1" max="1.0" step="0.1" value="1" class="w-full h-2.5 bg-slate-400 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                        <input type="range" id="speed-range" min="0.1" max="1.0" step="0.1" value="1" class="w-full h-2.5 bg-slate-400 rounded-lg appearance-none cursor-pointer accent-blue-600">
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="flex flex-col md:grid md:grid-cols-12 gap-6 items-stretch">
-            <!-- Painel Esquerdo: Leitor de Texto -->
+            <!-- Leitor Principal -->
             <div class="md:col-span-6 w-full flex flex-col">
                 <div class="bg-white rounded-3xl shadow-2xl border border-emerald-900/10 overflow-hidden flex flex-col flex-1 min-h-[650px] relative">
                     <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
                         <span id="active-tab-title" class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Texto de Estudo</span>
                         <div class="flex gap-2">
-                            <button id="btn-edit-text" class="btn-standard bg-slate-200 hover:bg-slate-300 text-slate-700">EDITAR</button>
+                            <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-md">EDITAR</button>
                         </div>
                     </div>
                     
@@ -165,7 +165,7 @@
                         <div id="text-display" class="p-6 md:p-10 text-slate-800 content-typography whitespace-pre-wrap"></div>
                     </div>
 
-                    <!-- Botões Inferiores de Ação (Modo Estudo) -->
+                    <!-- Contêiner de Ações Inferiores (Dinâmico) -->
                     <div id="study-actions-container" class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent pointer-events-none flex justify-center gap-2 hidden">
                         <button id="btn-toggle-all" class="btn-standard bg-slate-800 hover:bg-slate-900 text-white shadow-lg pointer-events-auto min-w-[180px]">
                             SELECIONAR TUDO
@@ -177,7 +177,7 @@
                 </div>
             </div>
 
-            <!-- Painel Direito: Dicionário/Tradução -->
+            <!-- Dicionário / Tradutor -->
             <div class="md:col-span-6 w-full flex flex-col">
                 <div class="bg-white rounded-3xl shadow-2xl border border-emerald-900/10 flex flex-col overflow-hidden flex-1 min-h-[650px]">
                     <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
@@ -197,8 +197,8 @@
                             </div>
                             
                             <div class="border-t border-slate-100 pt-8">
-                                <span class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-3 block">Tradução</span>
-                                <p id="translated-text" class="text-slate-800 content-typography"></p>
+                                <span class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-3 block">Tradução</span>
+                                <p id="translated-text" class="text-slate-800 content-typography font-bold"></p>
                                 <p id="proper-noun-warning" class="hidden mt-6 text-sm text-blue-500 italic font-normal">Nota: Nomes próprios foram preservados.</p>
                             </div>
                         </div>
@@ -241,8 +241,6 @@
         const modalCancel = document.getElementById('modal-cancel');
         let tabToDeleteId = null;
 
-        // Estrutura das Abas com Dicionário e Seleção
-        // tabs: [{ id, name, text, isEditing, selectedIndices: [], dictionary: { original, translated } }]
         let tabs = [{ 
             id: Date.now(), 
             name: "1", 
@@ -270,13 +268,31 @@
             return words.length > 1 && words.some((w, i) => i >= 0 && /^[A-Z]/.test(w));
         }
 
+        // Função central para decidir se mostra o botão de Selecionar Tudo
+        function updateStudyActionsVisibility() {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (!currentTab) return;
+
+            const hasText = currentTab.text.trim().length > 0;
+            const isReadingMode = !currentTab.isEditing;
+
+            if (hasText && isReadingMode) {
+                studyActionsContainer.classList.remove('hidden');
+            } else {
+                studyActionsContainer.classList.add('hidden');
+            }
+        }
+
         function updateDisplay() {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab) return;
 
             const text = currentTab.text.trim();
             textDisplay.innerHTML = '';
-            if (!text) return;
+            if (!text) {
+                updateStudyActionsVisibility();
+                return;
+            }
 
             let wordCounter = 0;
             text.split(/(\s+)/).forEach(fragment => {
@@ -288,7 +304,6 @@
                     const currentIndex = wordCounter++;
                     span.dataset.index = currentIndex;
 
-                    // Restaurar realce se o índice estiver na lista da aba
                     if (currentTab.selectedIndices.includes(currentIndex)) {
                         span.classList.add('word-highlight');
                     }
@@ -301,6 +316,7 @@
             updateToggleAllButton();
             updateAudioButtonVisibility();
             updateDictionaryView();
+            updateStudyActionsVisibility();
         }
 
         function handleWordClick(span, index) {
@@ -316,13 +332,14 @@
                 currentTab.selectedIndices.push(index);
             }
             
-            // Reordenar índices para manter a ordem de leitura no dicionário
             currentTab.selectedIndices.sort((a, b) => a - b);
             
-            // Atualizar o texto original do dicionário baseado na nova seleção
             const allSpans = Array.from(textDisplay.querySelectorAll('span'));
             currentTab.dictionary.original = currentTab.selectedIndices
-                .map(idx => allSpans.find(s => parseInt(s.dataset.index) === idx)?.textContent || "")
+                .map(idx => {
+                   const found = allSpans.find(s => parseInt(s.dataset.index) === idx);
+                   return found ? found.textContent : "";
+                })
                 .join(' ');
 
             updateToggleAllButton();
@@ -394,15 +411,21 @@
                 currentTab.text = textInput.value;
                 textInput.classList.add('hidden');
                 btnEditText.textContent = "EDITAR";
-                studyActionsContainer.classList.remove('hidden');
                 updateDisplay();
             } else {
                 currentTab.isEditing = true;
                 textInput.classList.remove('hidden');
                 textInput.focus();
                 btnEditText.textContent = "ESTUDAR";
-                studyActionsContainer.classList.add('hidden');
+                updateStudyActionsVisibility();
             }
+            saveData();
+        };
+
+        // Escuta digitação para atualizar o estado interno em tempo real
+        textInput.oninput = () => {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (currentTab) currentTab.text = textInput.value;
             saveData();
         };
 
@@ -413,21 +436,16 @@
             
             if (currentTab.selectedIndices.length < allSpans.length) {
                 currentTab.selectedIndices = allSpans.map(s => parseInt(s.dataset.index));
-                allSpans.forEach(span => span.classList.add('word-highlight'));
             } else {
-                allSpans.forEach(span => span.classList.remove('word-highlight'));
                 currentTab.selectedIndices = [];
-                currentTab.dictionary.translated = ""; // Limpa tradução ao desselecionar tudo
+                currentTab.dictionary.translated = "";
             }
 
-            // Atualiza texto original
             currentTab.dictionary.original = currentTab.selectedIndices
-                .map(idx => allSpans[idx]?.textContent || "")
+                .map(idx => allSpans.find(s => parseInt(s.dataset.index) === idx)?.textContent || "")
                 .join(' ');
 
-            updateDictionaryView();
-            updateToggleAllButton();
-            updateAudioButtonVisibility();
+            updateDisplay();
             saveData();
         };
 
@@ -443,9 +461,7 @@
             window.speechSynthesis.speak(utterance);
         };
 
-        // Gerenciamento de Abas
         function switchTab(id) {
-            // Salvar estado da aba atual antes de trocar
             const prevTab = tabs.find(t => t.id === activeTabId);
             if (prevTab) prevTab.text = textInput.value;
             
@@ -456,13 +472,12 @@
                 if (currentTab.isEditing) {
                     textInput.classList.remove('hidden');
                     btnEditText.textContent = "ESTUDAR";
-                    studyActionsContainer.classList.add('hidden');
                     textDisplay.innerHTML = "";
                     updateDictionaryView();
+                    updateStudyActionsVisibility();
                 } else {
                     textInput.classList.add('hidden');
                     btnEditText.textContent = "EDITAR";
-                    studyActionsContainer.classList.remove('hidden');
                     updateDisplay();
                 }
             }
@@ -530,7 +545,6 @@
             confirmModal.classList.add('hidden');
         };
 
-        // Configurações e Persistência
         function populateVoices() {
             voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
             voiceSelect.innerHTML = voices.map((v, i) => `<option value="${i}">${v.name}</option>`).join('');
@@ -553,7 +567,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('reader_multi_tab_data', JSON.stringify({ 
+            localStorage.setItem('reader_multi_tab_data_blue', JSON.stringify({ 
                 tabs, 
                 activeTabId, 
                 speed: speedRange.value, 
@@ -562,7 +576,7 @@
         }
 
         function loadData() {
-            const dataRaw = localStorage.getItem('reader_multi_tab_data');
+            const dataRaw = localStorage.getItem('reader_multi_tab_data_blue');
             if (dataRaw) {
                 const data = JSON.parse(dataRaw);
                 tabs = data.tabs || tabs;

@@ -109,7 +109,7 @@
         </div>
     </div>
 
-    <div class="max-w-6xl mx-auto p-4 md:p-8">
+    <div class="max-w-7xl mx-auto p-4 md:p-8">
         <div class="flex items-center gap-2 mb-4 w-full">
             <button id="btn-toggle-controls" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
@@ -135,10 +135,11 @@
             </div>
         </div>
 
-        <div class="flex flex-col lg:grid lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 order-1">
-                <div class="bg-white rounded-3xl shadow-2xl border border-emerald-900/10 overflow-hidden flex flex-col min-h-[550px]">
-                    <div class="p-4 border-b border-slate-100 flex flex-wrap justify-between items-center bg-slate-50 gap-3">
+        <div class="flex flex-col md:grid md:grid-cols-12 gap-6 items-stretch">
+            <!-- Área de Texto Principal (6 colunas) -->
+            <div class="md:col-span-6 w-full flex flex-col">
+                <div class="bg-white rounded-3xl shadow-2xl border border-emerald-900/10 overflow-hidden flex flex-col flex-1 min-h-[650px]">
+                    <div class="p-4 border-b border-slate-100 flex flex-wrap justify-between items-center bg-slate-50 gap-3 shrink-0">
                         <span id="active-tab-title" class="text-[11px] font-black text-slate-500 uppercase tracking-widest">Texto de Estudo</span>
                         <div class="flex flex-wrap gap-2">
                             <button id="btn-edit-text" class="btn-standard bg-slate-200 hover:bg-slate-300 text-slate-700">EDITAR</button>
@@ -149,38 +150,53 @@
                         </div>
                     </div>
                     
-                    <div id="text-container" class="relative flex-1 p-6 md:p-10 overflow-y-auto no-scrollbar">
-                        <textarea id="text-input" class="w-full h-full absolute inset-0 p-6 md:p-10 focus:outline-none resize-none text-lg text-slate-800 leading-relaxed z-10 hidden" placeholder="Cole seu texto em inglês aqui..."></textarea>
-                        <div id="text-display" class="text-xl md:text-2xl text-slate-800 leading-[2.2] font-medium whitespace-pre-wrap transition-all"></div>
+                    <div id="text-container" class="relative flex-1 overflow-y-auto no-scrollbar">
+                        <textarea id="text-input" class="w-full h-full absolute inset-0 p-6 md:p-10 focus:outline-none resize-none text-xl md:text-2xl text-slate-800 leading-[2.2] font-medium z-10 hidden" placeholder="Cole seu texto em inglês aqui..."></textarea>
+                        <div id="text-display" class="p-6 md:p-10 text-xl md:text-2xl text-slate-800 leading-[2.2] font-medium whitespace-pre-wrap transition-all"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-1 order-2">
-                <div class="bg-white rounded-3xl shadow-2xl border border-emerald-900/10 sticky top-6 flex flex-col overflow-hidden">
-                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+            <!-- Dicionário (6 colunas) -->
+            <div class="md:col-span-6 w-full flex flex-col">
+                <div class="bg-white rounded-3xl shadow-2xl border border-emerald-900/10 flex flex-col overflow-hidden flex-1 min-h-[650px]">
+                    <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center shrink-0">
                         <h2 class="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">Dicionário</h2>
                         <button id="btn-translate-selected" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-md">TRADUZIR</button>
                     </div>
                     
-                    <div id="translation-content" class="p-6 min-h-[300px]">
-                        <div id="empty-state" class="text-center text-slate-400 py-12">
-                            <p class="text-sm font-medium italic">Selecione palavras e clique em traduzir.</p>
-                        </div>
-                        <div id="result-state" class="hidden">
-                            <div class="mb-5">
-                                <span class="text-[10px] font-black text-blue-700 uppercase bg-blue-50 px-2 py-0.5 rounded mb-2 inline-block">Original</span>
-                                <p id="original-text" class="text-lg font-bold text-slate-900 leading-tight"></p>
+                    <div id="translation-content" class="flex-1 overflow-y-auto no-scrollbar bg-white">
+                        <!-- Estado Vazio: Mantém o layout de padding igual ao campo de texto -->
+                        <div id="empty-state" class="p-6 md:p-10 text-slate-400">
+                            <div class="flex items-center gap-3 mb-4 opacity-30">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                                <span class="text-sm font-black uppercase tracking-widest">Aguardando Seleção</span>
                             </div>
-                            <div class="p-5 bg-blue-50 rounded-2xl border border-blue-200">
-                                <span class="text-[10px] font-black text-blue-800 uppercase block mb-2 opacity-70">Tradução</span>
-                                <p id="translated-text" class="text-slate-800 leading-relaxed text-md font-semibold"></p>
-                                <p id="proper-noun-warning" class="hidden mt-2 text-[10px] text-blue-600 italic border-t border-blue-200 pt-2">Nota: Este termo contém nomes próprios que geralmente não são traduzidos.</p>
+                            <p class="text-xl md:text-2xl leading-[2.2] font-medium italic opacity-40">Selecione palavras no texto ao lado para ver a tradução aqui.</p>
+                        </div>
+
+                        <!-- Estado de Resultado: Espelha o visual do texto principal -->
+                        <div id="result-state" class="hidden p-6 md:p-10">
+                            <div class="mb-8">
+                                <span class="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-3 block">Original</span>
+                                <p id="original-text" class="text-xl md:text-2xl text-slate-900 leading-[2.2] font-medium"></p>
+                            </div>
+                            
+                            <div class="border-t border-slate-100 pt-8">
+                                <span class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-3 block">Tradução</span>
+                                <p id="translated-text" class="text-xl md:text-2xl text-slate-800 leading-[2.2] font-medium"></p>
+                                <p id="proper-noun-warning" class="hidden mt-6 text-sm text-blue-500 italic font-normal">Nota: Identificamos nomes próprios que foram mantidos.</p>
                             </div>
                         </div>
-                        <div id="loading-state" class="hidden space-y-4">
-                            <div class="h-4 w-1/3 loading-shimmer rounded-full"></div>
-                            <div class="h-32 w-full loading-shimmer rounded-2xl"></div>
+
+                        <!-- Loading: Espelha as linhas do texto -->
+                        <div id="loading-state" class="hidden p-6 md:p-10 space-y-6">
+                            <div class="h-8 w-1/3 loading-shimmer rounded-lg opacity-20"></div>
+                            <div class="space-y-4">
+                                <div class="h-6 w-full loading-shimmer rounded-lg opacity-10"></div>
+                                <div class="h-6 w-5/6 loading-shimmer rounded-lg opacity-10"></div>
+                                <div class="h-6 w-4/6 loading-shimmer rounded-lg opacity-10"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -209,7 +225,6 @@
         const translatedTextDisplay = document.getElementById('translated-text');
         const properNounWarning = document.getElementById('proper-noun-warning');
 
-        // Referências do Modal
         const confirmModal = document.getElementById('confirm-modal');
         const modalConfirm = document.getElementById('modal-confirm');
         const modalCancel = document.getElementById('modal-cancel');
@@ -237,14 +252,7 @@
                 const response = await fetch(url);
                 const data = await response.json();
                 if (data.responseData && data.responseData.translatedText) {
-                    let result = data.responseData.translatedText;
-                    const origWords = rawText.split(' ').length;
-                    const resWords = result.split(' ').length;
-                    if (origWords < 6 && resWords > (origWords * 3)) {
-                        const machineMatch = data.matches.find(m => m.created_by === "MT!" || m.quality >= 70);
-                        if (machineMatch) return machineMatch.translation;
-                    }
-                    return result;
+                    return data.responseData.translatedText;
                 }
                 return "Não foi possível traduzir.";
             } catch (err) { return "Erro na rede. Tente novamente."; }
@@ -258,7 +266,7 @@
         function updateDisplay() {
             const text = textInput.value.trim();
             if (!text) {
-                textDisplay.innerHTML = '<span class="text-slate-300 italic">Insira seu texto...</span>';
+                textDisplay.innerHTML = '<span class="text-slate-300 italic">Insira seu texto aqui para começar o estudo...</span>';
                 return;
             }
             textDisplay.innerHTML = '';
@@ -442,7 +450,6 @@
             switchTab(newId);
         }
 
-        // Funções do Modal de Exclusão
         function requestDeleteTab(id) {
             tabToDeleteId = id;
             confirmModal.classList.remove('hidden');

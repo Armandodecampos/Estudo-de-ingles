@@ -447,6 +447,7 @@
             if (currentTab) {
                 textInput.value = currentTab.text;
                 textInput.classList.toggle('hidden', !currentTab.isEditing);
+                textDisplay.classList.toggle('hidden', currentTab.isEditing);
                 btnEditText.textContent = currentTab.isEditing ? "ESTUDAR" : "EDITAR";
                 updateDisplay();
                 renderTabs();

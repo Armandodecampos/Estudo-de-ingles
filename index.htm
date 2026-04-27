@@ -141,9 +141,6 @@
             }
         }
 
-        #ai-voice-loader {
-            display: none;
-        }
         .loading-pulse {
             animation: pulse 1s infinite alternate;
         }
@@ -155,30 +152,8 @@
 </head>
 <body class="bg-chalkboard min-h-screen md:h-screen flex flex-col font-sans text-slate-900 md:overflow-hidden">
 
-    <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center">
-            <h3 class="text-xl font-black text-slate-900 mb-2">Eliminar aba?</h3>
-            <p class="text-slate-500 mb-8 leading-relaxed">Isto apagará permanentemente o conteúdo desta aba.</p>
-            <div class="flex gap-3">
-                <button id="modal-cancel" class="flex-1 h-12 rounded-xl bg-slate-100 text-slate-700 font-bold">CANCELAR</button>
-                <button id="modal-confirm" class="flex-1 h-12 rounded-xl bg-red-600 text-white font-bold">ELIMINAR</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="rename-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center">
-            <h3 class="text-xl font-black text-slate-900 mb-4">Renomear Aba</h3>
-            <input type="text" id="rename-input" class="w-full h-12 px-4 mb-6 rounded-xl border border-slate-300 focus:border-blue-500 outline-none text-center font-bold" maxlength="15">
-            <div class="flex gap-3">
-                <button id="rename-cancel" class="flex-1 h-12 rounded-xl bg-slate-100 text-slate-700 font-bold">CANCELAR</button>
-                <button id="rename-confirm" class="flex-1 h-12 rounded-xl bg-blue-600 text-white font-bold">GUARDAR</button>
-            </div>
-        </div>
-    </div>
-
     <div class="max-w-7xl w-full mx-auto p-4 md:p-8 flex flex-col flex-1 md:overflow-hidden">
-        <!-- Top Bar -->
+        <!-- Barra de Abas -->
         <div class="flex items-center gap-2 mb-6 w-full shrink-0">
             <button id="btn-toggle-controls" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -194,19 +169,24 @@
             </div>
         </div>
 
-        <!-- Voice Config Panel -->
+        <!-- Painel de Configuração -->
         <div id="controls-section" class="bg-slate-100 p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 shrink-0 hidden-panel">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div class="flex flex-col gap-2">
-                    <label class="panel-header-title px-1">Motor de Voz</label>
+                    <label class="panel-header-title px-1">Sistema de Tradução e Voz</label>
                     <div class="bg-white border border-slate-300 rounded-xl h-[56px] flex items-center justify-between px-4">
-                        <span id="voice-engine-label" class="text-xs font-bold text-slate-600 uppercase tracking-tight">Sistema</span>
+                        <span id="voice-engine-label" class="text-[10px] font-bold text-slate-600 uppercase tracking-tight">Sistema</span>
                         <label class="switch">
                             <input type="checkbox" id="ai-voice-toggle">
                             <span class="slider"></span>
                         </label>
-                        <span id="ai-engine-label" class="text-xs font-bold text-blue-600 uppercase tracking-tight opacity-40">Google AI</span>
+                        <span id="ai-engine-label" class="text-[10px] font-bold text-blue-600 uppercase tracking-tight opacity-40">Google AI</span>
                     </div>
+                </div>
+
+                <div id="api-key-container" class="flex flex-col gap-2 opacity-40 transition-opacity">
+                    <label class="panel-header-title px-1">Google API Key</label>
+                    <input type="password" id="user-api-key" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[56px] px-4 outline-none font-medium focus:border-blue-500" placeholder="Chave fornecida automaticamente">
                 </div>
 
                 <div class="flex flex-col gap-2">
@@ -226,23 +206,24 @@
             </div>
         </div>
 
-        <!-- Main Layout -->
+        <!-- Layout Principal -->
         <div class="flex flex-col md:grid md:grid-cols-12 gap-6 items-stretch flex-1 min-h-0">
+            <!-- Conteúdo -->
             <div class="md:col-span-6 w-full flex flex-col min-h-0">
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 relative full-height-panel">
                     <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 shrink-0">
                         <span id="active-tab-title" class="panel-header-title">CONTEÚDO</span>
                         <div class="flex items-center gap-2">
-                            <div id="ai-voice-loader" class="items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold loading-pulse">
+                            <div id="ai-voice-loader" class="hidden items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold loading-pulse">
                                 <svg class="animate-spin h-3 w-3" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                A PROCESSAR ÁUDIO...
+                                PROCESSANDO...
                             </div>
                             <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">EDITAR</button>
                         </div>
                     </div>
                     
                     <div id="text-container" class="relative flex-1 overflow-y-auto no-scrollbar">
-                        <textarea id="text-input" class="w-full h-full absolute inset-0 p-6 md:p-10 focus:outline-none resize-none text-slate-800 content-typography z-10 hidden" placeholder="Insira o texto em inglês..."></textarea>
+                        <textarea id="text-input" class="w-full h-full absolute inset-0 p-6 md:p-10 focus:outline-none resize-none text-slate-800 content-typography z-10 hidden" placeholder="Insira o texto..."></textarea>
                         <div id="text-display" class="p-6 md:p-10 text-slate-800 content-typography whitespace-pre-wrap pb-28"></div>
                     </div>
 
@@ -258,7 +239,7 @@
                 </div>
             </div>
 
-            <!-- Translation Panel -->
+            <!-- Tradutor -->
             <div class="md:col-span-6 w-full flex flex-col min-h-0">
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden flex-1 full-height-panel">
                     <div class="p-4 border-b border-slate-100 bg-slate-50/80 flex justify-between items-center shrink-0">
@@ -268,12 +249,11 @@
                     
                     <div id="translation-content" class="flex-1 overflow-y-auto no-scrollbar bg-white relative">
                         <div id="empty-state" class="p-6 md:p-10">
-                            <p class="content-typography text-slate-400 italic">Selecione a/as palavra/as ao lado e clique em traduzir...</p>
+                            <p class="content-typography text-slate-400 italic">Selecione uma parte do texto...</p>
                         </div>
                         <div id="result-state" class="hidden p-6 md:p-10">
-                            <div class="pt-2">
-                                <p id="translated-text" class="text-slate-800 content-typography font-bold"></p>
-                            </div>
+                            <div id="ai-badge" class="hidden mb-2 text-[9px] font-black bg-blue-600 text-white px-2 py-0.5 rounded inline-block uppercase">Modo Inteligente Ativo</div>
+                            <p id="translated-text" class="text-slate-800 content-typography font-bold"></p>
                         </div>
                         <div id="loading-state" class="hidden p-6 md:p-10 space-y-4">
                             <div class="h-8 w-full loading-shimmer rounded-lg"></div>
@@ -286,7 +266,10 @@
     </div>
 
     <script>
-        const apiKey = "";
+        // Configurações globais injetadas pelo ambiente
+        const apiKey = ""; // A chave é fornecida pelo ambiente
+
+        // Elementos da UI
         const textInput = document.getElementById('text-input');
         const textDisplay = document.getElementById('text-display');
         const btnEditText = document.getElementById('btn-edit-text');
@@ -304,189 +287,191 @@
         const activeTabTitle = document.getElementById('active-tab-title');
         const aiVoiceToggle = document.getElementById('ai-voice-toggle');
         const aiVoiceLoader = document.getElementById('ai-voice-loader');
+        const apiKeyInput = document.getElementById('user-api-key');
+        const apiKeyContainer = document.getElementById('api-key-container');
         const emptyState = document.getElementById('empty-state');
         const resultState = document.getElementById('result-state');
         const loadingState = document.getElementById('loading-state');
         const translatedTextDisplay = document.getElementById('translated-text');
-        const confirmModal = document.getElementById('confirm-modal');
-        const renameModal = document.getElementById('rename-modal');
-        const renameInput = document.getElementById('rename-input');
+        const aiBadge = document.getElementById('ai-badge');
 
+        // Estado Global
         let tabs = [{ id: Date.now(), name: "Aba 1", text: "", isEditing: true, selectedIndices: [], dictionary: { original: "", translated: "" } }];
         let activeTabId = tabs[0].id;
         let showControls = false;
         let selectedVoiceIdentifier = '';
         let voices = [];
-        let isAiVoice = false;
+        let isAiMode = false;
         let currentAudioSource = null;
 
         const GOOGLE_VOICES = [
             { name: "Kore (Padrão)", value: "Kore" },
             { name: "Zephyr (Suave)", value: "Zephyr" },
-            { name: "Fenrir (Profundo)", value: "Fenrir" },
-            { name: "Charon (Calmo)", value: "Charon" },
-            { name: "Puck (Animado)", value: "Puck" },
-            { name: "Leda (Claro)", value: "Leda" }
+            { name: "Charon (Natural)", value: "Charon" },
+            { name: "Leda (Feminina)", value: "Leda" }
         ];
 
-        // --- Robusta Conversão PCM para WAV ---
+        // --- Helpers de Áudio ---
         function pcmToWav(pcmData, sampleRate) {
             const buffer = new ArrayBuffer(44 + pcmData.length * 2);
             const view = new DataView(buffer);
             const writeString = (offset, string) => {
-                for (let i = 0; i < string.length; i++) {
-                    view.setUint8(offset + i, string.charCodeAt(i));
-                }
+                for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
             };
             writeString(0, 'RIFF');
             view.setUint32(4, 36 + pcmData.length * 2, true);
             writeString(8, 'WAVE');
             writeString(12, 'fmt ');
             view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true); // PCM format
-            view.setUint16(22, 1, true); // Mono
+            view.setUint16(20, 1, true); 
+            view.setUint16(22, 1, true); 
             view.setUint32(24, sampleRate, true);
-            view.setUint32(28, sampleRate * 2, true); // Byte rate
-            view.setUint16(32, 2, true); // Block align
-            view.setUint16(34, 16, true); // Bits per sample
+            view.setUint32(28, sampleRate * 2, true); 
+            view.setUint16(32, 2, true); 
+            view.setUint16(34, 16, true); 
             writeString(36, 'data');
             view.setUint32(40, pcmData.length * 2, true);
-            for (let i = 0; i < pcmData.length; i++) {
-                view.setInt16(44 + i * 2, pcmData[i], true);
-            }
+            for (let i = 0; i < pcmData.length; i++) view.setInt16(44 + i * 2, pcmData[i], true);
             return new Blob([buffer], { type: 'audio/wav' });
         }
 
-        async function fetchAiSpeech(text, voiceName) {
-            let retries = 0;
-            const maxRetries = 5;
-            const delays = [1000, 2000, 4000, 8000, 16000];
+        // --- Lógica de Tradução Gemini ---
+        async function fetchTranslation(text) {
+            if (!isAiMode) {
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|pt-PT`;
+                const res = await fetch(url);
+                const data = await res.json();
+                return data.responseData?.translatedText || "Erro na tradução simples.";
+            }
 
-            // Natural speed control mapping
+            const modelId = "gemini-2.5-flash-preview-09-2025";
+            const executeRequest = async (retryCount = 0) => {
+                try {
+                    // Tenta o endpoint correto conforme as instruções do sistema
+                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+                    
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{ text: `Translate to European Portuguese (pt-PT): "${text}". Only return the translation.` }]
+                            }],
+                            systemInstruction: {
+                                parts: [{ text: "You are a professional translator specializing in English to Portuguese (Portugal)." }]
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.error?.message || "Erro na API");
+                    }
+
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Tradução vazia.";
+                } catch (e) {
+                    if (retryCount < 5) {
+                        const delay = Math.pow(2, retryCount) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return executeRequest(retryCount + 1);
+                    }
+                    throw e;
+                }
+            };
+
+            return await executeRequest();
+        }
+
+        // --- Lógica de Voz Gemini (TTS) ---
+        async function fetchAiSpeech(text, voiceName) {
+            const modelId = "gemini-2.5-flash-preview-tts";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${apiKey}`;
+            
             const speedVal = parseFloat(speedRange.value);
             let speechPrompt = text;
             if (speedVal < 0.8) speechPrompt = "Say very slowly: " + text;
             else if (speedVal > 1.3) speechPrompt = "Say quickly: " + text;
 
-            const payload = {
-                model: "gemini-2.5-flash-preview-tts",
-                contents: [{ 
-                    parts: [{ text: speechPrompt }] 
-                }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: {
-                        voiceConfig: {
-                            prebuiltVoiceConfig: { voiceName: voiceName }
-                        }
-                    }
-                }
-            };
-
-            while (retries < maxRetries) {
+            const executeRequest = async (retryCount = 0) => {
                 try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    const response = await fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: speechPrompt }] }],
+                            generationConfig: {
+                                responseModalities: ["AUDIO"],
+                                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voiceName } } }
+                            }
+                        })
                     });
 
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    if (!response.ok) throw new Error("Erro no TTS");
 
                     const result = await response.json();
                     const audioPart = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-                    
                     if (audioPart?.inlineData?.data) {
-                        const base64Data = audioPart.inlineData.data;
                         const mimeType = audioPart.inlineData.mimeType || "audio/L16;rate=24000";
-                        const sampleRateMatch = mimeType.match(/rate=(\d+)/);
-                        const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1]) : 24000;
-                        
-                        // Decode base64 to UInt8 then convert to Int16 PCM
-                        const binaryString = atob(base64Data);
-                        const bytes = new Uint8Array(binaryString.length);
-                        for (let i = 0; i < binaryString.length; i++) {
-                            bytes[i] = binaryString.charCodeAt(i);
-                        }
-                        
-                        const pcmData = new Int16Array(bytes.buffer);
-                        return pcmToWav(pcmData, sampleRate);
+                        const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)?.[1] || "24000");
+                        const binary = atob(audioPart.inlineData.data);
+                        const bytes = new Uint8Array(binary.length);
+                        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                        return pcmToWav(new Int16Array(bytes.buffer), sampleRate);
                     }
-                    throw new Error("Dados de áudio ausentes na resposta");
-                } catch (err) {
-                    retries++;
-                    if (retries === maxRetries) throw err;
-                    await new Promise(r => setTimeout(r, delays[retries-1]));
+                    throw new Error("Dados de áudio não recebidos");
+                } catch (e) {
+                    if (retryCount < 5) {
+                        const delay = Math.pow(2, retryCount) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        return executeRequest(retryCount + 1);
+                    }
+                    throw e;
                 }
-            }
+            };
+
+            return await executeRequest();
         }
 
-        async function translateText(text) {
-            const rawText = text.trim();
-            if (!rawText) return "";
-            try {
-                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawText)}&langpair=en|pt-BR&mt=1`;
-                const response = await fetch(url);
-                const data = await response.json();
-                return data.responseData?.translatedText || "Tradução indisponível.";
-            } catch (err) { return "Erro na tradução."; }
-        }
-
+        // --- Persistência e UI ---
         function saveData() {
-            localStorage.setItem('reader_data_pro_v1', JSON.stringify({ 
-                tabs, activeTabId, speed: speedRange.value, showControls, selectedVoiceIdentifier, isAiVoice
+            localStorage.setItem('reader_pro_ai_v3', JSON.stringify({ 
+                tabs, activeTabId, speed: speedRange.value, showControls, selectedVoiceIdentifier, isAiMode
             }));
         }
 
         function loadData() {
-            const dataRaw = localStorage.getItem('reader_data_pro_v1');
-            if (dataRaw) {
-                const data = JSON.parse(dataRaw);
+            const raw = localStorage.getItem('reader_pro_ai_v3');
+            if (raw) {
+                const data = JSON.parse(raw);
                 tabs = data.tabs || tabs;
                 activeTabId = data.activeTabId || tabs[0].id;
                 speedRange.value = data.speed || "1.0";
                 speedValue.innerText = speedRange.value + 'x';
                 showControls = !!data.showControls;
                 selectedVoiceIdentifier = data.selectedVoiceIdentifier || '';
-                isAiVoice = !!data.isAiVoice;
-                aiVoiceToggle.checked = isAiVoice;
+                isAiMode = !!data.isAiMode;
+                aiVoiceToggle.checked = isAiMode;
             }
-            updateControlsVisibility();
-            updateEngineLabels();
+            updateEngineState();
             switchTab(activeTabId);
         }
 
-        function updateEngineLabels() {
+        function updateEngineState() {
             const sys = document.getElementById('voice-engine-label');
             const ai = document.getElementById('ai-engine-label');
-            if (isAiVoice) {
+            if (isAiMode) {
                 sys.classList.add('opacity-40');
                 ai.classList.remove('opacity-40');
+                apiKeyContainer.classList.add('hidden'); // Oculto pois a chave é automática
+                aiBadge.classList.remove('hidden');
             } else {
                 sys.classList.remove('opacity-40');
                 ai.classList.add('opacity-40');
+                apiKeyContainer.classList.add('hidden');
+                aiBadge.classList.add('hidden');
             }
             populateVoices();
-        }
-
-        function updateStudyActionsVisibility() {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab) return;
-            const hasText = currentTab.text.trim().length > 0;
-            studyActionsContainer.classList.toggle('hidden', !(hasText && !currentTab.isEditing));
-        }
-
-        function updateDictionaryView() {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab) return;
-            if (!currentTab.dictionary.original) {
-                resultState.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
-                resultState.classList.remove('hidden');
-                translatedTextDisplay.innerText = currentTab.dictionary.translated || "...";
-            }
         }
 
         function updateDisplay() {
@@ -509,13 +494,22 @@
                     }
                 });
             }
-            btnToggleAll.textContent = (currentTab.selectedIndices.length > 0 && currentTab.selectedIndices.length === textDisplay.querySelectorAll('span').length) 
-                ? "LIMPAR SELEÇÃO" : "SELECIONAR TUDO";
+            
+            btnToggleAll.textContent = (currentTab.selectedIndices.length > 0 && currentTab.selectedIndices.length === textDisplay.querySelectorAll('span').length) ? "LIMPAR SELEÇÃO" : "SELECIONAR TUDO";
             const hasSelection = currentTab.selectedIndices.length > 0;
             btnSpeakSelection.classList.toggle('hidden', !hasSelection);
             btnStopSelection.classList.toggle('hidden', !hasSelection);
-            updateDictionaryView();
-            updateStudyActionsVisibility();
+            
+            if (!currentTab.dictionary.original) {
+                resultState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                resultState.classList.remove('hidden');
+                translatedTextDisplay.innerText = currentTab.dictionary.translated || "...";
+            }
+            const hasText = currentTab.text.trim().length > 0;
+            studyActionsContainer.classList.toggle('hidden', !(hasText && !currentTab.isEditing));
         }
 
         function handleWordClick(span, index) {
@@ -523,37 +517,12 @@
             if (!currentTab || currentTab.isEditing) return;
             const listIndex = currentTab.selectedIndices.indexOf(index);
             if (listIndex > -1) {
-                span.classList.remove('word-highlight');
                 currentTab.selectedIndices.splice(listIndex, 1);
             } else {
-                span.classList.add('word-highlight');
                 currentTab.selectedIndices.push(index);
             }
-            currentTab.selectedIndices.sort((a, b) => a - b);
             updateDisplay();
             saveData();
-        }
-
-        function renderTabs() {
-            tabsContainer.innerHTML = '';
-            tabs.forEach(tab => {
-                const isActive = tab.id === activeTabId;
-                const tabEl = document.createElement('div');
-                tabEl.className = `min-w-[100px] max-w-[180px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'}`;
-                const nameSpan = document.createElement('span');
-                nameSpan.className = "truncate flex-1 pointer-events-none";
-                nameSpan.textContent = tab.name;
-                tabEl.onclick = () => switchTab(tab.id);
-                const delBtn = document.createElement('button');
-                delBtn.innerHTML = '&times;';
-                delBtn.className = "ml-2 opacity-50 hover:opacity-100 text-lg leading-none";
-                delBtn.onclick = (e) => { e.stopPropagation(); tabToDeleteId = tab.id; confirmModal.classList.remove('hidden'); };
-                tabEl.appendChild(nameSpan);
-                if (tabs.length > 1) tabEl.appendChild(delBtn);
-                tabsContainer.appendChild(tabEl);
-            });
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            activeTabTitle.textContent = currentTab ? currentTab.name.toUpperCase() : "ABA";
         }
 
         function switchTab(id) {
@@ -563,15 +532,51 @@
                 textInput.value = currentTab.text;
                 textInput.classList.toggle('hidden', !currentTab.isEditing);
                 textDisplay.classList.toggle('hidden', currentTab.isEditing);
-                btnEditText.textContent = currentTab.isEditing ? "ESTUDAR" : "EDITAR";
+                btnEditText.textContent = currentTab.isEditing ? "CONCLUIR" : "EDITAR";
+                activeTabTitle.textContent = currentTab.name.toUpperCase();
                 updateDisplay();
                 renderTabs();
             }
         }
 
+        function renderTabs() {
+            tabsContainer.innerHTML = '';
+            tabs.forEach(tab => {
+                const isActive = tab.id === activeTabId;
+                const tabEl = document.createElement('div');
+                tabEl.className = `min-w-[100px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all ${isActive ? 'tab-active' : 'bg-white/10 text-white/70'}`;
+                tabEl.innerHTML = `<span class="truncate pointer-events-none">${tab.name}</span>`;
+                tabEl.onclick = () => switchTab(tab.id);
+                if (tabs.length > 1) {
+                    const del = document.createElement('button');
+                    del.innerHTML = '&times;';
+                    del.className = "ml-2 opacity-50";
+                    del.onclick = (e) => { 
+                        e.stopPropagation(); 
+                        tabs = tabs.filter(t => t.id !== tab.id);
+                        if(activeTabId === tab.id) activeTabId = tabs[0].id;
+                        switchTab(activeTabId);
+                    };
+                    tabEl.appendChild(del);
+                }
+                tabsContainer.appendChild(tabEl);
+            });
+        }
+
+        function populateVoices() {
+            if (isAiMode) {
+                voiceSelect.innerHTML = GOOGLE_VOICES.map(v => `<option value="${v.value}">${v.name}</option>`).join('');
+            } else {
+                voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+                voiceSelect.innerHTML = voices.map((v) => `<option value="${v.voiceURI || v.name}">${v.name}</option>`).join('');
+            }
+            if (selectedVoiceIdentifier) voiceSelect.value = selectedVoiceIdentifier;
+            selectedVoiceIdentifier = voiceSelect.value;
+        }
+
+        // --- Eventos ---
         btnEditText.onclick = () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab) return;
             currentTab.isEditing = !currentTab.isEditing;
             currentTab.text = textInput.value;
             saveData();
@@ -579,8 +584,8 @@
         };
 
         aiVoiceToggle.onchange = () => {
-            isAiVoice = aiVoiceToggle.checked;
-            updateEngineLabels();
+            isAiMode = aiVoiceToggle.checked;
+            updateEngineState();
             saveData();
         };
 
@@ -589,21 +594,24 @@
             if (!currentTab || currentTab.selectedIndices.length === 0) return;
             const allSpans = Array.from(textDisplay.querySelectorAll('span'));
             const selection = currentTab.selectedIndices.map(i => allSpans.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
+            
             currentTab.dictionary.original = selection;
             resultState.classList.add('hidden');
             loadingState.classList.remove('hidden');
-            currentTab.dictionary.translated = await translateText(selection);
-            loadingState.classList.add('hidden');
-            updateDictionaryView();
-            saveData();
-        };
-
-        btnStopSelection.onclick = () => {
-            if (currentAudioSource) {
-                currentAudioSource.pause();
-                currentAudioSource = null;
+            aiVoiceLoader.classList.remove('hidden');
+            aiVoiceLoader.classList.add('flex');
+            
+            try {
+                currentTab.dictionary.translated = await fetchTranslation(selection);
+            } catch(e) {
+                currentTab.dictionary.translated = `Erro: ${e.message}`;
+            } finally {
+                loadingState.classList.add('hidden');
+                aiVoiceLoader.classList.add('hidden');
+                aiVoiceLoader.classList.remove('flex');
+                updateDisplay();
+                saveData();
             }
-            window.speechSynthesis.cancel();
         };
 
         btnSpeakSelection.onclick = async () => {
@@ -612,106 +620,62 @@
             const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
             if (!text.trim()) return;
 
-            if (isAiVoice) {
+            if (isAiMode) {
                 try {
-                    aiVoiceLoader.style.display = 'flex';
-                    if (currentAudioSource) {
-                        currentAudioSource.pause();
-                        currentAudioSource = null;
-                    }
+                    aiVoiceLoader.classList.remove('hidden');
+                    aiVoiceLoader.classList.add('flex');
+                    if (currentAudioSource) currentAudioSource.pause();
                     const audioBlob = await fetchAiSpeech(text, voiceSelect.value);
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    currentAudioSource = new Audio(audioUrl);
-                    currentAudioSource.play().catch(e => console.error("Playback error", e));
-                } catch (e) {
-                    console.error("AI Voice Error:", e);
+                    currentAudioSource = new Audio(URL.createObjectURL(audioBlob));
+                    currentAudioSource.play();
+                } catch (e) { 
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.rate = parseFloat(speedRange.value);
+                    window.speechSynthesis.speak(utterance);
                 } finally {
-                    aiVoiceLoader.style.display = 'none';
+                    aiVoiceLoader.classList.add('hidden');
+                    aiVoiceLoader.classList.remove('flex');
                 }
             } else {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
-                const selectedVoice = voices.find(v => (v.voiceURI || v.name) === voiceSelect.value);
-                if (selectedVoice) {
-                    utterance.voice = selectedVoice;
-                    utterance.lang = selectedVoice.lang;
-                }
+                const v = voices.find(v => (v.voiceURI || v.name) === voiceSelect.value);
+                if (v) utterance.voice = v;
                 utterance.rate = parseFloat(speedRange.value);
                 window.speechSynthesis.speak(utterance);
             }
         };
 
-        function populateVoices() {
-            if (isAiVoice) {
-                voiceSelect.innerHTML = GOOGLE_VOICES.map(v => `<option value="${v.value}">${v.name}</option>`).join('');
-                if (selectedVoiceIdentifier && GOOGLE_VOICES.some(v => v.value === selectedVoiceIdentifier)) {
-                    voiceSelect.value = selectedVoiceIdentifier;
-                }
-            } else {
-                const allVoices = window.speechSynthesis.getVoices();
-                voices = allVoices.filter(v => v.lang.startsWith('en'));
-                if (voices.length === 0) voices = allVoices;
-                voiceSelect.innerHTML = voices.map((v) => `<option value="${v.voiceURI || v.name}">${v.name} (${v.lang})</option>`).join('');
-                if (selectedVoiceIdentifier && voices.some(v => (v.voiceURI || v.name) === selectedVoiceIdentifier)) {
-                    voiceSelect.value = selectedVoiceIdentifier;
-                }
-            }
-            selectedVoiceIdentifier = voiceSelect.value;
-        }
+        btnStopSelection.onclick = () => {
+            if (currentAudioSource) currentAudioSource.pause();
+            window.speechSynthesis.cancel();
+        };
 
         document.getElementById('btn-add-tab').onclick = () => {
             const id = Date.now();
             tabs.push({ id, name: `Aba ${tabs.length + 1}`, text: "", isEditing: true, selectedIndices: [], dictionary: { original: "", translated: "" } });
             switchTab(id);
         };
-        document.getElementById('btn-rename-tab').onclick = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (!currentTab) return;
-            renameInput.value = currentTab.name;
-            renameModal.classList.remove('hidden');
-        };
-        document.getElementById('rename-confirm').onclick = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (currentTab && renameInput.value.trim()) {
-                currentTab.name = renameInput.value.trim();
-                renderTabs();
-                saveData();
-            }
-            renameModal.classList.add('hidden');
-        };
-        document.getElementById('modal-confirm').onclick = () => {
-            if (tabs.length > 1) {
-                tabs = tabs.filter(t => t.id !== tabToDeleteId);
-                if (activeTabId === tabToDeleteId) activeTabId = tabs[0].id;
-                switchTab(activeTabId);
-                saveData();
-            }
-            confirmModal.classList.add('hidden');
-        };
-        document.getElementById('modal-cancel').onclick = () => confirmModal.classList.add('hidden');
-        document.getElementById('rename-cancel').onclick = () => renameModal.classList.add('hidden');
-        btnToggleControls.onclick = () => { showControls = !showControls; updateControlsVisibility(); saveData(); };
-        function updateControlsVisibility() {
+
+        btnToggleControls.onclick = () => { 
+            showControls = !showControls; 
             controlsSection.classList.toggle('hidden-panel', !showControls);
-            btnToggleControls.classList.toggle('bg-white/30', showControls);
-        }
+            saveData(); 
+        };
+
         btnToggleAll.onclick = () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             const all = Array.from(textDisplay.querySelectorAll('span'));
-            if (currentTab.selectedIndices.length === all.length) {
-                currentTab.selectedIndices = [];
-                currentTab.dictionary = { original: "", translated: "" };
-            } else {
-                currentTab.selectedIndices = all.map(s => parseInt(s.dataset.index));
-            }
+            currentTab.selectedIndices = (currentTab.selectedIndices.length === all.length) ? [] : all.map(s => parseInt(s.dataset.index));
             updateDisplay();
             saveData();
         };
+
         voiceSelect.onchange = () => { selectedVoiceIdentifier = voiceSelect.value; saveData(); };
-        window.speechSynthesis.onvoiceschanged = () => { if (!isAiVoice) populateVoices(); };
+        window.speechSynthesis.onvoiceschanged = () => { if (!isAiMode) populateVoices(); };
         speedRange.oninput = () => { speedValue.innerText = speedRange.value + 'x'; saveData(); };
-        textInput.oninput = () => { const t = tabs.find(t => t.id === activeTabId); if (t) t.text = textInput.value; saveData(); };
-        window.onload = () => { loadData(); if (!isAiVoice) populateVoices(); };
+
+        window.onload = loadData;
     </script>
 </body>
 </html>

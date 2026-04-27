@@ -254,15 +254,15 @@
                     
                     <div id="text-container" class="relative flex-1 overflow-y-auto no-scrollbar">
                         <textarea id="text-input" class="w-full h-full absolute inset-0 p-6 md:p-10 focus:outline-none resize-none text-slate-800 content-typography z-10 hidden" placeholder="Insira o texto em inglês..."></textarea>
-                        <div id="text-display" class="p-6 md:p-10 text-slate-800 content-typography whitespace-pre-wrap pb-28"></div>
+                        <div id="text-display" class="p-6 md:p-10 text-slate-800 content-typography whitespace-pre-wrap"></div>
                     </div>
 
-                    <div id="study-actions-container" class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent pointer-events-none flex justify-center gap-2 hidden z-20">
-                        <button id="btn-toggle-all" class="btn-standard bg-slate-800 hover:bg-slate-900 text-white shadow-xl pointer-events-auto min-w-[180px]">SELECIONAR TUDO</button>
-                        <button id="btn-speak-selection" class="btn-standard w-[44px] bg-amber-500 hover:bg-amber-600 text-white shadow-xl pointer-events-auto hidden">
+                    <div id="study-actions-container" class="p-4 bg-white border-t border-slate-100 flex justify-center gap-2 hidden shrink-0">
+                        <button id="btn-toggle-all" class="btn-standard bg-slate-800 hover:bg-slate-900 text-white shadow-xl min-w-[180px]">SELECIONAR TUDO</button>
+                        <button id="btn-speak-selection" class="btn-standard w-[44px] bg-amber-500 hover:bg-amber-600 text-white shadow-xl hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                         </button>
-                        <button id="btn-stop-selection" class="btn-standard w-[44px] bg-red-500 hover:bg-red-600 text-white shadow-xl pointer-events-auto hidden">
+                        <button id="btn-stop-selection" class="btn-standard w-[44px] bg-red-500 hover:bg-red-600 text-white shadow-xl hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"></rect></svg>
                         </button>
                     </div>

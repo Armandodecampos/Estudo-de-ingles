@@ -197,7 +197,10 @@
                     </div>
                 </div>
                 <div class="flex flex-col gap-2 w-full sm:w-80">
-                    <label class="panel-header-title px-1">Chave API Google</label>
+                    <div class="flex justify-between items-center px-1">
+                        <label class="panel-header-title">Chave API Google</label>
+                        <span id="ai-error-badge" class="text-[9px] font-black text-red-600 bg-red-100 px-2 py-0.5 rounded-full hidden">ERRO API</span>
+                    </div>
                     <input type="password" id="api-key-input" placeholder="Insira sua API Key..." class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none focus:border-blue-500">
                 </div>
             </div>
@@ -278,6 +281,7 @@
         const speedValue = document.getElementById('speed-value');
         const aiModeCheck = document.getElementById('ai-mode-check');
         const apiKeyInput = document.getElementById('api-key-input');
+        const aiErrorBadge = document.getElementById('ai-error-badge');
         const tabsContainer = document.getElementById('tabs-container');
         const activeTabTitle = document.getElementById('active-tab-title');
         
@@ -328,12 +332,19 @@
                             target: 'pt'
                         })
                     });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error?.message || "Erro na API de Tradução");
+                    }
+
                     const data = await response.json();
                     if (data.data && data.data.translations && data.data.translations.length > 0) {
                         return decodeHTMLEntities(data.data.translations[0].translatedText);
                     }
                 } catch (err) {
-                    console.error("Erro na tradução com IA:", err);
+                    console.error("Erro na tradução com IA:", err.message);
+                    aiErrorBadge.classList.remove('hidden');
                 }
             }
 
@@ -582,6 +593,12 @@
         function updateControlsVisibility() {
             controlsSection.classList.toggle('hidden-panel', !showControls);
             btnToggleControls.classList.toggle('bg-white/30', showControls);
+
+            // Visual feedback for AI mode
+            const isAi = aiModeCheck.checked;
+            voiceSelect.disabled = isAi;
+            voiceSelect.parentElement.classList.toggle('opacity-40', isAi);
+            voiceSelect.parentElement.querySelector('label').innerText = isAi ? "Voz da IA (Ativa)" : "Voz do Sistema";
         }
 
         btnToggleAll.onclick = () => {
@@ -634,6 +651,12 @@
                             }
                         })
                     });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error?.message || "Erro na API de Voz");
+                    }
+
                     const data = await response.json();
                     if (data.audioContent) {
                         const audioBlob = new Blob([Uint8Array.from(atob(data.audioContent), c => c.charCodeAt(0))], { type: 'audio/mp3' });
@@ -644,7 +667,8 @@
                         return;
                     }
                 } catch (err) {
-                    console.error("Erro no TTS com IA:", err);
+                    console.error("Erro no TTS com IA:", err.message);
+                    aiErrorBadge.classList.remove('hidden');
                 }
             }
 
@@ -696,8 +720,14 @@
 
         window.speechSynthesis.onvoiceschanged = populateVoices;
         speedRange.oninput = () => { speedValue.innerText = speedRange.value + 'x'; saveData(); };
-        aiModeCheck.onchange = () => saveData();
-        apiKeyInput.oninput = () => saveData();
+        aiModeCheck.onchange = () => {
+            updateControlsVisibility();
+            saveData();
+        };
+        apiKeyInput.oninput = () => {
+            aiErrorBadge.classList.add('hidden');
+            saveData();
+        };
         textInput.oninput = () => { const t = tabs.find(t => t.id === activeTabId); if (t) t.text = textInput.value; saveData(); };
 
         window.onload = () => {

@@ -173,8 +173,41 @@
         <div id="controls-section" class="bg-slate-100 p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 shrink-0 hidden-panel">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6">
                 <div class="flex flex-col gap-2 flex-1">
-                    <label class="panel-header-title px-1">Voz do Sistema</label>
+                    <label id="voice-label" class="panel-header-title px-1">Voz do Sistema</label>
                     <select id="voice-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none"></select>
+                    <select id="ai-voice-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none hidden">
+                        <optgroup label="Inglês Americano (en-US)">
+                            <option value="en-US-Neural2-A">en-US-Neural2-A (Feminina)</option>
+                            <option value="en-US-Neural2-C">en-US-Neural2-C (Feminina)</option>
+                            <option value="en-US-Neural2-D">en-US-Neural2-D (Masculina)</option>
+                            <option value="en-US-Neural2-F">en-US-Neural2-F (Feminina)</option>
+                            <option value="en-US-Neural2-G">en-US-Neural2-G (Feminina)</option>
+                            <option value="en-US-Neural2-H">en-US-Neural2-H (Feminina)</option>
+                            <option value="en-US-Neural2-I">en-US-Neural2-I (Masculina)</option>
+                            <option value="en-US-Neural2-J">en-US-Neural2-J (Masculina)</option>
+                            <option value="en-US-Studio-O">en-US-Studio-O (Feminina)</option>
+                            <option value="en-US-Studio-Q">en-US-Studio-Q (Masculina)</option>
+                        </optgroup>
+                        <optgroup label="Inglês Britânico (en-GB)">
+                            <option value="en-GB-Neural2-A">en-GB-Neural2-A (Feminina)</option>
+                            <option value="en-GB-Neural2-B">en-GB-Neural2-B (Masculina)</option>
+                            <option value="en-GB-Neural2-C">en-GB-Neural2-C (Feminina)</option>
+                            <option value="en-GB-Neural2-D">en-GB-Neural2-D (Masculina)</option>
+                            <option value="en-GB-Neural2-F">en-GB-Neural2-F (Feminina)</option>
+                        </optgroup>
+                        <optgroup label="Inglês Australiano (en-AU)">
+                            <option value="en-AU-Neural2-A">en-AU-Neural2-A (Feminina)</option>
+                            <option value="en-AU-Neural2-B">en-AU-Neural2-B (Masculina)</option>
+                            <option value="en-AU-Neural2-C">en-AU-Neural2-C (Feminina)</option>
+                            <option value="en-AU-Neural2-D">en-AU-Neural2-D (Masculina)</option>
+                        </optgroup>
+                        <optgroup label="Outros Sotaques (Neural2)">
+                            <option value="en-IN-Neural2-A">Indiano: en-IN-Neural2-A (Feminina)</option>
+                            <option value="en-IN-Neural2-B">Indiano: en-IN-Neural2-B (Masculina)</option>
+                            <option value="en-CA-Neural2-A">Canadense: en-CA-Neural2-A (Feminina)</option>
+                            <option value="en-CA-Neural2-B">Canadense: en-CA-Neural2-B (Masculina)</option>
+                        </optgroup>
+                    </select>
                 </div>
                 <div class="flex flex-col gap-2 w-full sm:w-56">
                     <div class="flex justify-between items-center px-1">
@@ -280,6 +313,7 @@
         const btnToggleControls = document.getElementById('btn-toggle-controls');
         const controlsSection = document.getElementById('controls-section');
         const voiceSelect = document.getElementById('voice-select');
+        const aiVoiceSelect = document.getElementById('ai-voice-select');
         const speedRange = document.getElementById('speed-range');
         const speedValue = document.getElementById('speed-value');
         const aiModeCheck = document.getElementById('ai-mode-check');
@@ -308,6 +342,7 @@
         let activeTabId = tabs[0].id;
         let showControls = false;
         let selectedVoiceIdentifier = '';
+        let selectedAiVoiceIdentifier = 'en-US-Neural2-F';
         let voices = [];
         let currentUtterance = null;
         let currentAiAudio = null;
@@ -371,6 +406,7 @@
                 speed: speedRange.value,
                 showControls,
                 selectedVoiceIdentifier,
+                selectedAiVoiceIdentifier,
                 aiMode: aiModeCheck.checked,
                 apiKey: apiKeyInput.value
             }));
@@ -386,8 +422,11 @@
                 speedValue.innerText = speedRange.value + 'x';
                 showControls = !!data.showControls;
                 selectedVoiceIdentifier = data.selectedVoiceIdentifier || data.selectedVoiceName || '';
+                selectedAiVoiceIdentifier = data.selectedAiVoiceIdentifier || 'en-US-Neural2-F';
                 aiModeCheck.checked = !!data.aiMode;
                 apiKeyInput.value = data.apiKey || '';
+
+                if (aiVoiceSelect) aiVoiceSelect.value = selectedAiVoiceIdentifier;
             }
             updateControlsVisibility();
             switchTab(activeTabId);
@@ -604,9 +643,13 @@
 
             // Visual feedback for AI mode
             const isAi = aiModeCheck.checked;
-            voiceSelect.disabled = isAi;
-            voiceSelect.parentElement.classList.toggle('opacity-40', isAi);
-            voiceSelect.parentElement.querySelector('label').innerText = isAi ? "Voz da IA (Ativa)" : "Voz do Sistema";
+            voiceSelect.classList.toggle('hidden', isAi);
+            aiVoiceSelect.classList.toggle('hidden', !isAi);
+
+            const voiceLabel = document.getElementById('voice-label');
+            if (voiceLabel) {
+                voiceLabel.innerText = isAi ? "Voz da IA (Google)" : "Voz do Sistema";
+            }
         }
 
         btnToggleAll.onclick = () => {
@@ -646,13 +689,16 @@
 
             if (aiModeCheck.checked && apiKeyInput.value.trim()) {
                 try {
+                    const selectedAiVoice = aiVoiceSelect.value;
+                    const langCode = selectedAiVoice.split('-').slice(0, 2).join('-');
+
                     const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKeyInput.value.trim()}`;
                     const response = await fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             input: { text: text },
-                            voice: { languageCode: 'en-US', name: 'en-US-Wavenet-A' },
+                            voice: { languageCode: langCode, name: selectedAiVoice },
                             audioConfig: {
                                 audioEncoding: 'MP3',
                                 speakingRate: Math.max(0.25, Math.min(4.0, parseFloat(speedRange.value)))
@@ -728,6 +774,11 @@
 
         voiceSelect.onchange = () => {
             selectedVoiceIdentifier = voiceSelect.value;
+            saveData();
+        };
+
+        aiVoiceSelect.onchange = () => {
+            selectedAiVoiceIdentifier = aiVoiceSelect.value;
             saveData();
         };
 

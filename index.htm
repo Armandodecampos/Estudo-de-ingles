@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>English Reader - Abas Móveis</title>
+    <title>English Reader - Pro AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .loading-shimmer {
@@ -61,9 +61,7 @@
             font-weight: 500;
         }
         @media (min-width: 768px) {
-            .content-typography {
-                font-size: 1.5rem;
-            }
+            .content-typography { font-size: 1.5rem; }
         }
 
         .btn-standard {
@@ -89,19 +87,9 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .tab-dragging {
-            opacity: 0.4;
-            transform: scale(0.95);
-        }
-
-        .tab-drag-over {
-            border: 2px dashed rgba(255, 255, 255, 0.5) !important;
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
         #controls-section {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            max-height: 500px;
+            max-height: 800px;
             opacity: 1;
             overflow: hidden;
             margin-bottom: 1.5rem;
@@ -115,6 +103,33 @@
             pointer-events: none;
         }
 
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #3b82f6; }
+        input:checked + .slider:before { transform: translateX(26px); }
+
         .full-height-panel {
             height: auto;
             min-height: 300px;
@@ -125,11 +140,21 @@
                 min-height: 500px;
             }
         }
+
+        #ai-voice-loader {
+            display: none;
+        }
+        .loading-pulse {
+            animation: pulse 1s infinite alternate;
+        }
+        @keyframes pulse {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body class="bg-chalkboard min-h-screen md:h-screen flex flex-col font-sans text-slate-900 md:overflow-hidden">
 
-    <!-- Modais de Interface -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center">
             <h3 class="text-xl font-black text-slate-900 mb-2">Eliminar aba?</h3>
@@ -153,7 +178,7 @@
     </div>
 
     <div class="max-w-7xl w-full mx-auto p-4 md:p-8 flex flex-col flex-1 md:overflow-hidden">
-        <!-- Barra Superior -->
+        <!-- Top Bar -->
         <div class="flex items-center gap-2 mb-6 w-full shrink-0">
             <button id="btn-toggle-controls" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -169,33 +194,51 @@
             </div>
         </div>
 
-        <!-- Painel de Voz -->
+        <!-- Voice Config Panel -->
         <div id="controls-section" class="bg-slate-100 p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 shrink-0 hidden-panel">
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6">
-                <div class="flex flex-col gap-2 flex-1">
-                    <label class="panel-header-title px-1">Voz do Sistema</label>
-                    <select id="voice-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none"></select>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <div class="flex flex-col gap-2">
+                    <label class="panel-header-title px-1">Motor de Voz</label>
+                    <div class="bg-white border border-slate-300 rounded-xl h-[56px] flex items-center justify-between px-4">
+                        <span id="voice-engine-label" class="text-xs font-bold text-slate-600 uppercase tracking-tight">Sistema</span>
+                        <label class="switch">
+                            <input type="checkbox" id="ai-voice-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span id="ai-engine-label" class="text-xs font-bold text-blue-600 uppercase tracking-tight opacity-40">Google AI</span>
+                    </div>
                 </div>
-                <div class="flex flex-col gap-2 w-full sm:w-56">
+
+                <div class="flex flex-col gap-2">
+                    <label class="panel-header-title px-1">Voz Selecionada</label>
+                    <select id="voice-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[56px] px-3.5 outline-none font-medium"></select>
+                </div>
+
+                <div class="flex flex-col gap-2">
                     <div class="flex justify-between items-center px-1">
                         <label class="panel-header-title">Velocidade</label>
-                        <span id="speed-value" class="text-sm font-bold text-white bg-blue-700 px-3 py-0.5 rounded-full">1.0x</span>
+                        <span id="speed-value" class="text-xs font-bold text-white bg-blue-700 px-2.5 py-1 rounded-lg">1.0x</span>
                     </div>
-                    <div class="h-[44px] flex items-center">
-                        <input type="range" id="speed-range" min="0.1" max="1.0" step="0.1" value="1" class="w-full h-2.5 bg-slate-400 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                    <div class="h-[56px] bg-white border border-slate-300 rounded-xl px-4 flex items-center">
+                        <input type="range" id="speed-range" min="0.1" max="2.0" step="0.1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Layout Principal -->
+        <!-- Main Layout -->
         <div class="flex flex-col md:grid md:grid-cols-12 gap-6 items-stretch flex-1 min-h-0">
-            <!-- Painel de Texto -->
             <div class="md:col-span-6 w-full flex flex-col min-h-0">
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 relative full-height-panel">
                     <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/80 shrink-0">
                         <span id="active-tab-title" class="panel-header-title">CONTEÚDO</span>
-                        <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">EDITAR</button>
+                        <div class="flex items-center gap-2">
+                            <div id="ai-voice-loader" class="items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold loading-pulse">
+                                <svg class="animate-spin h-3 w-3" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                A PROCESSAR ÁUDIO...
+                            </div>
+                            <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">EDITAR</button>
+                        </div>
                     </div>
                     
                     <div id="text-container" class="relative flex-1 overflow-y-auto no-scrollbar">
@@ -215,7 +258,7 @@
                 </div>
             </div>
 
-            <!-- Painel de Tradução -->
+            <!-- Translation Panel -->
             <div class="md:col-span-6 w-full flex flex-col min-h-0">
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden flex-1 full-height-panel">
                     <div class="p-4 border-b border-slate-100 bg-slate-50/80 flex justify-between items-center shrink-0">
@@ -227,20 +270,15 @@
                         <div id="empty-state" class="p-6 md:p-10">
                             <p class="content-typography text-slate-400 italic">Selecione a/as palavra/as ao lado e clique em traduzir...</p>
                         </div>
-
                         <div id="result-state" class="hidden p-6 md:p-10">
                             <div class="pt-2">
                                 <p id="translated-text" class="text-slate-800 content-typography font-bold"></p>
                             </div>
                         </div>
-
                         <div id="loading-state" class="hidden p-6 md:p-10 space-y-4">
                             <div class="h-8 w-full loading-shimmer rounded-lg"></div>
                             <div class="h-8 w-4/6 loading-shimmer rounded-lg"></div>
                         </div>
-                    </div>
-                    <div class="p-3 border-t border-slate-100 bg-slate-50/50 text-center shrink-0">
-                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Limite de 500 caracteres.</span>
                     </div>
                 </div>
             </div>
@@ -248,6 +286,7 @@
     </div>
 
     <script>
+        const apiKey = "";
         const textInput = document.getElementById('text-input');
         const textDisplay = document.getElementById('text-display');
         const btnEditText = document.getElementById('btn-edit-text');
@@ -263,31 +302,124 @@
         const speedValue = document.getElementById('speed-value');
         const tabsContainer = document.getElementById('tabs-container');
         const activeTabTitle = document.getElementById('active-tab-title');
-        
+        const aiVoiceToggle = document.getElementById('ai-voice-toggle');
+        const aiVoiceLoader = document.getElementById('ai-voice-loader');
         const emptyState = document.getElementById('empty-state');
         const resultState = document.getElementById('result-state');
         const loadingState = document.getElementById('loading-state');
         const translatedTextDisplay = document.getElementById('translated-text');
-
         const confirmModal = document.getElementById('confirm-modal');
         const renameModal = document.getElementById('rename-modal');
         const renameInput = document.getElementById('rename-input');
 
-        let tabs = [{ 
-            id: Date.now(), 
-            name: "Aba 1", 
-            text: "", 
-            isEditing: true, 
-            selectedIndices: [], 
-            dictionary: { original: "", translated: "" } 
-        }];
+        let tabs = [{ id: Date.now(), name: "Aba 1", text: "", isEditing: true, selectedIndices: [], dictionary: { original: "", translated: "" } }];
         let activeTabId = tabs[0].id;
         let showControls = false;
         let selectedVoiceIdentifier = '';
         let voices = [];
-        let currentUtterance = null;
-        let draggedTabId = null;
-        let tabToDeleteId = null;
+        let isAiVoice = false;
+        let currentAudioSource = null;
+
+        const GOOGLE_VOICES = [
+            { name: "Kore (Padrão)", value: "Kore" },
+            { name: "Zephyr (Suave)", value: "Zephyr" },
+            { name: "Fenrir (Profundo)", value: "Fenrir" },
+            { name: "Charon (Calmo)", value: "Charon" },
+            { name: "Puck (Animado)", value: "Puck" },
+            { name: "Leda (Claro)", value: "Leda" }
+        ];
+
+        // --- Robusta Conversão PCM para WAV ---
+        function pcmToWav(pcmData, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+            const view = new DataView(buffer);
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + pcmData.length * 2, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true); // PCM format
+            view.setUint16(22, 1, true); // Mono
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true); // Byte rate
+            view.setUint16(32, 2, true); // Block align
+            view.setUint16(34, 16, true); // Bits per sample
+            writeString(36, 'data');
+            view.setUint32(40, pcmData.length * 2, true);
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        async function fetchAiSpeech(text, voiceName) {
+            let retries = 0;
+            const maxRetries = 5;
+            const delays = [1000, 2000, 4000, 8000, 16000];
+
+            // Natural speed control mapping
+            const speedVal = parseFloat(speedRange.value);
+            let speechPrompt = text;
+            if (speedVal < 0.8) speechPrompt = "Say very slowly: " + text;
+            else if (speedVal > 1.3) speechPrompt = "Say quickly: " + text;
+
+            const payload = {
+                model: "gemini-2.5-flash-preview-tts",
+                contents: [{ 
+                    parts: [{ text: speechPrompt }] 
+                }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: voiceName }
+                        }
+                    }
+                }
+            };
+
+            while (retries < maxRetries) {
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                    const result = await response.json();
+                    const audioPart = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+                    
+                    if (audioPart?.inlineData?.data) {
+                        const base64Data = audioPart.inlineData.data;
+                        const mimeType = audioPart.inlineData.mimeType || "audio/L16;rate=24000";
+                        const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                        const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1]) : 24000;
+                        
+                        // Decode base64 to UInt8 then convert to Int16 PCM
+                        const binaryString = atob(base64Data);
+                        const bytes = new Uint8Array(binaryString.length);
+                        for (let i = 0; i < binaryString.length; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        
+                        const pcmData = new Int16Array(bytes.buffer);
+                        return pcmToWav(pcmData, sampleRate);
+                    }
+                    throw new Error("Dados de áudio ausentes na resposta");
+                } catch (err) {
+                    retries++;
+                    if (retries === maxRetries) throw err;
+                    await new Promise(r => setTimeout(r, delays[retries-1]));
+                }
+            }
+        }
 
         async function translateText(text) {
             const rawText = text.trim();
@@ -301,13 +433,13 @@
         }
 
         function saveData() {
-            localStorage.setItem('reader_data_v3', JSON.stringify({ 
-                tabs, activeTabId, speed: speedRange.value, showControls, selectedVoiceIdentifier
+            localStorage.setItem('reader_data_pro_v1', JSON.stringify({ 
+                tabs, activeTabId, speed: speedRange.value, showControls, selectedVoiceIdentifier, isAiVoice
             }));
         }
 
         function loadData() {
-            const dataRaw = localStorage.getItem('reader_data_v3');
+            const dataRaw = localStorage.getItem('reader_data_pro_v1');
             if (dataRaw) {
                 const data = JSON.parse(dataRaw);
                 tabs = data.tabs || tabs;
@@ -315,10 +447,26 @@
                 speedRange.value = data.speed || "1.0";
                 speedValue.innerText = speedRange.value + 'x';
                 showControls = !!data.showControls;
-                selectedVoiceIdentifier = data.selectedVoiceIdentifier || data.selectedVoiceName || '';
+                selectedVoiceIdentifier = data.selectedVoiceIdentifier || '';
+                isAiVoice = !!data.isAiVoice;
+                aiVoiceToggle.checked = isAiVoice;
             }
             updateControlsVisibility();
+            updateEngineLabels();
             switchTab(activeTabId);
+        }
+
+        function updateEngineLabels() {
+            const sys = document.getElementById('voice-engine-label');
+            const ai = document.getElementById('ai-engine-label');
+            if (isAiVoice) {
+                sys.classList.add('opacity-40');
+                ai.classList.remove('opacity-40');
+            } else {
+                sys.classList.remove('opacity-40');
+                ai.classList.add('opacity-40');
+            }
+            populateVoices();
         }
 
         function updateStudyActionsVisibility() {
@@ -331,7 +479,6 @@
         function updateDictionaryView() {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab) return;
-
             if (!currentTab.dictionary.original) {
                 resultState.classList.add('hidden');
                 emptyState.classList.remove('hidden');
@@ -345,7 +492,6 @@
         function updateDisplay() {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab) return;
-
             textDisplay.innerHTML = '';
             if (currentTab.text.trim()) {
                 let wordCounter = 0;
@@ -363,10 +509,8 @@
                     }
                 });
             }
-            
             btnToggleAll.textContent = (currentTab.selectedIndices.length > 0 && currentTab.selectedIndices.length === textDisplay.querySelectorAll('span').length) 
                 ? "LIMPAR SELEÇÃO" : "SELECIONAR TUDO";
-            
             const hasSelection = currentTab.selectedIndices.length > 0;
             btnSpeakSelection.classList.toggle('hidden', !hasSelection);
             btnStopSelection.classList.toggle('hidden', !hasSelection);
@@ -377,7 +521,6 @@
         function handleWordClick(span, index) {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab || currentTab.isEditing) return;
-            
             const listIndex = currentTab.selectedIndices.indexOf(index);
             if (listIndex > -1) {
                 span.classList.remove('word-highlight');
@@ -386,7 +529,6 @@
                 span.classList.add('word-highlight');
                 currentTab.selectedIndices.push(index);
             }
-            
             currentTab.selectedIndices.sort((a, b) => a - b);
             updateDisplay();
             saveData();
@@ -397,45 +539,15 @@
             tabs.forEach(tab => {
                 const isActive = tab.id === activeTabId;
                 const tabEl = document.createElement('div');
-                tabEl.draggable = true;
-                tabEl.className = `min-w-[100px] max-w-[180px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold cursor-grab active:cursor-grabbing transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'}`;
-                
-                tabEl.ondragstart = (e) => {
-                    draggedTabId = tab.id;
-                    tabEl.classList.add('tab-dragging');
-                };
-                tabEl.ondragover = (e) => {
-                    e.preventDefault();
-                    tabEl.classList.add('tab-drag-over');
-                };
-                tabEl.ondragleave = () => tabEl.classList.remove('tab-drag-over');
-                tabEl.ondrop = (e) => {
-                    e.preventDefault();
-                    if (draggedTabId !== tab.id) {
-                        const fromIdx = tabs.findIndex(t => t.id === draggedTabId);
-                        const toIdx = tabs.findIndex(t => t.id === tab.id);
-                        const [moved] = tabs.splice(fromIdx, 1);
-                        tabs.splice(toIdx, 0, moved);
-                        renderTabs();
-                        saveData();
-                    }
-                };
-                tabEl.ondragend = () => {
-                    tabEl.classList.remove('tab-dragging');
-                    document.querySelectorAll('.tab-drag-over').forEach(el => el.classList.remove('tab-drag-over'));
-                };
-
+                tabEl.className = `min-w-[100px] max-w-[180px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'}`;
                 const nameSpan = document.createElement('span');
                 nameSpan.className = "truncate flex-1 pointer-events-none";
                 nameSpan.textContent = tab.name;
-                
-                tabEl.onclick = (e) => { if (e.target === tabEl) switchTab(tab.id); };
-                
+                tabEl.onclick = () => switchTab(tab.id);
                 const delBtn = document.createElement('button');
                 delBtn.innerHTML = '&times;';
                 delBtn.className = "ml-2 opacity-50 hover:opacity-100 text-lg leading-none";
                 delBtn.onclick = (e) => { e.stopPropagation(); tabToDeleteId = tab.id; confirmModal.classList.remove('hidden'); };
-
                 tabEl.appendChild(nameSpan);
                 if (tabs.length > 1) tabEl.appendChild(delBtn);
                 tabsContainer.appendChild(tabEl);
@@ -466,37 +578,98 @@
             switchTab(activeTabId);
         };
 
+        aiVoiceToggle.onchange = () => {
+            isAiVoice = aiVoiceToggle.checked;
+            updateEngineLabels();
+            saveData();
+        };
+
         btnTranslateSelected.onclick = async () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab || currentTab.selectedIndices.length === 0) return;
-            
             const allSpans = Array.from(textDisplay.querySelectorAll('span'));
             const selection = currentTab.selectedIndices.map(i => allSpans.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
-            
             currentTab.dictionary.original = selection;
             resultState.classList.add('hidden');
             loadingState.classList.remove('hidden');
-
             currentTab.dictionary.translated = await translateText(selection);
-            
             loadingState.classList.add('hidden');
             updateDictionaryView();
             saveData();
         };
+
+        btnStopSelection.onclick = () => {
+            if (currentAudioSource) {
+                currentAudioSource.pause();
+                currentAudioSource = null;
+            }
+            window.speechSynthesis.cancel();
+        };
+
+        btnSpeakSelection.onclick = async () => {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            const all = Array.from(textDisplay.querySelectorAll('span'));
+            const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
+            if (!text.trim()) return;
+
+            if (isAiVoice) {
+                try {
+                    aiVoiceLoader.style.display = 'flex';
+                    if (currentAudioSource) {
+                        currentAudioSource.pause();
+                        currentAudioSource = null;
+                    }
+                    const audioBlob = await fetchAiSpeech(text, voiceSelect.value);
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    currentAudioSource = new Audio(audioUrl);
+                    currentAudioSource.play().catch(e => console.error("Playback error", e));
+                } catch (e) {
+                    console.error("AI Voice Error:", e);
+                } finally {
+                    aiVoiceLoader.style.display = 'none';
+                }
+            } else {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                const selectedVoice = voices.find(v => (v.voiceURI || v.name) === voiceSelect.value);
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                    utterance.lang = selectedVoice.lang;
+                }
+                utterance.rate = parseFloat(speedRange.value);
+                window.speechSynthesis.speak(utterance);
+            }
+        };
+
+        function populateVoices() {
+            if (isAiVoice) {
+                voiceSelect.innerHTML = GOOGLE_VOICES.map(v => `<option value="${v.value}">${v.name}</option>`).join('');
+                if (selectedVoiceIdentifier && GOOGLE_VOICES.some(v => v.value === selectedVoiceIdentifier)) {
+                    voiceSelect.value = selectedVoiceIdentifier;
+                }
+            } else {
+                const allVoices = window.speechSynthesis.getVoices();
+                voices = allVoices.filter(v => v.lang.startsWith('en'));
+                if (voices.length === 0) voices = allVoices;
+                voiceSelect.innerHTML = voices.map((v) => `<option value="${v.voiceURI || v.name}">${v.name} (${v.lang})</option>`).join('');
+                if (selectedVoiceIdentifier && voices.some(v => (v.voiceURI || v.name) === selectedVoiceIdentifier)) {
+                    voiceSelect.value = selectedVoiceIdentifier;
+                }
+            }
+            selectedVoiceIdentifier = voiceSelect.value;
+        }
 
         document.getElementById('btn-add-tab').onclick = () => {
             const id = Date.now();
             tabs.push({ id, name: `Aba ${tabs.length + 1}`, text: "", isEditing: true, selectedIndices: [], dictionary: { original: "", translated: "" } });
             switchTab(id);
         };
-
         document.getElementById('btn-rename-tab').onclick = () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab) return;
             renameInput.value = currentTab.name;
             renameModal.classList.remove('hidden');
         };
-
         document.getElementById('rename-confirm').onclick = () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (currentTab && renameInput.value.trim()) {
@@ -506,7 +679,6 @@
             }
             renameModal.classList.add('hidden');
         };
-
         document.getElementById('modal-confirm').onclick = () => {
             if (tabs.length > 1) {
                 tabs = tabs.filter(t => t.id !== tabToDeleteId);
@@ -516,21 +688,13 @@
             }
             confirmModal.classList.add('hidden');
         };
-
         document.getElementById('modal-cancel').onclick = () => confirmModal.classList.add('hidden');
         document.getElementById('rename-cancel').onclick = () => renameModal.classList.add('hidden');
-
-        btnToggleControls.onclick = () => {
-            showControls = !showControls;
-            updateControlsVisibility();
-            saveData();
-        };
-
+        btnToggleControls.onclick = () => { showControls = !showControls; updateControlsVisibility(); saveData(); };
         function updateControlsVisibility() {
             controlsSection.classList.toggle('hidden-panel', !showControls);
             btnToggleControls.classList.toggle('bg-white/30', showControls);
         }
-
         btnToggleAll.onclick = () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             const all = Array.from(textDisplay.querySelectorAll('span'));
@@ -543,72 +707,11 @@
             updateDisplay();
             saveData();
         };
-
-        btnStopSelection.onclick = () => {
-            window.speechSynthesis.cancel();
-        };
-
-        btnSpeakSelection.onclick = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            const all = Array.from(textDisplay.querySelectorAll('span'));
-            const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
-
-            if (voices.length === 0) populateVoices();
-            window.speechSynthesis.cancel();
-
-            const startSpeech = () => {
-                if (!text.trim()) return;
-                currentUtterance = new SpeechSynthesisUtterance(text);
-                const selectedVoice = voices.find(v => (v.voiceURI || v.name) === voiceSelect.value);
-                if (selectedVoice) {
-                    currentUtterance.voice = selectedVoice;
-                    currentUtterance.lang = selectedVoice.lang;
-                } else {
-                    currentUtterance.lang = 'en-US';
-                }
-                currentUtterance.rate = parseFloat(speedRange.value);
-                window.speechSynthesis.speak(currentUtterance);
-            };
-
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            if (isAndroid) {
-                // Use a small delay on Android to ensure 'cancel' is processed.
-                setTimeout(startSpeech, 50);
-            } else {
-                // Direct synchronous call on Desktop to preserve user gesture context.
-                startSpeech();
-            }
-        };
-
-        function populateVoices() {
-            const allVoices = window.speechSynthesis.getVoices();
-            if (allVoices.length === 0) return;
-
-            voices = allVoices.filter(v => v.lang.startsWith('en'));
-            if (voices.length === 0) voices = allVoices; // Fallback if no English voices found
-
-            voiceSelect.innerHTML = voices.map((v) => `<option value="${v.voiceURI || v.name}">${v.name} (${v.lang})</option>`).join('');
-
-            if (selectedVoiceIdentifier && voices.some(v => (v.voiceURI || v.name) === selectedVoiceIdentifier)) {
-                voiceSelect.value = selectedVoiceIdentifier;
-            } else if (voices.length > 0) {
-                selectedVoiceIdentifier = voiceSelect.value;
-            }
-        }
-
-        voiceSelect.onchange = () => {
-            selectedVoiceIdentifier = voiceSelect.value;
-            saveData();
-        };
-
-        window.speechSynthesis.onvoiceschanged = populateVoices;
+        voiceSelect.onchange = () => { selectedVoiceIdentifier = voiceSelect.value; saveData(); };
+        window.speechSynthesis.onvoiceschanged = () => { if (!isAiVoice) populateVoices(); };
         speedRange.oninput = () => { speedValue.innerText = speedRange.value + 'x'; saveData(); };
         textInput.oninput = () => { const t = tabs.find(t => t.id === activeTabId); if (t) t.text = textInput.value; saveData(); };
-
-        window.onload = () => {
-            loadData();
-            populateVoices();
-        };
+        window.onload = () => { loadData(); if (!isAiVoice) populateVoices(); };
     </script>
 </body>
 </html>

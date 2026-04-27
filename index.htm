@@ -186,6 +186,21 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Configurações IA -->
+            <div class="pt-4 border-t border-slate-300 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6">
+                <div class="flex flex-col gap-2 flex-1">
+                    <label class="panel-header-title px-1">Modo IA (Google Cloud)</label>
+                    <div class="flex items-center gap-3 h-[44px]">
+                        <input type="checkbox" id="ai-mode-check" class="w-6 h-6 rounded-lg accent-blue-600 cursor-pointer">
+                        <span class="text-sm font-bold text-slate-600">Ativar tradução e voz com IA</span>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-2 w-full sm:w-80">
+                    <label class="panel-header-title px-1">Chave API Google</label>
+                    <input type="password" id="api-key-input" placeholder="Insira sua API Key..." class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none focus:border-blue-500">
+                </div>
+            </div>
         </div>
 
         <!-- Layout Principal -->
@@ -261,6 +276,8 @@
         const voiceSelect = document.getElementById('voice-select');
         const speedRange = document.getElementById('speed-range');
         const speedValue = document.getElementById('speed-value');
+        const aiModeCheck = document.getElementById('ai-mode-check');
+        const apiKeyInput = document.getElementById('api-key-input');
         const tabsContainer = document.getElementById('tabs-container');
         const activeTabTitle = document.getElementById('active-tab-title');
         
@@ -286,12 +303,40 @@
         let selectedVoiceIdentifier = '';
         let voices = [];
         let currentUtterance = null;
+        let currentAiAudio = null;
         let draggedTabId = null;
         let tabToDeleteId = null;
+
+        function decodeHTMLEntities(text) {
+            const textArea = document.createElement('textarea');
+            textArea.innerHTML = text;
+            return textArea.value;
+        }
 
         async function translateText(text) {
             const rawText = text.trim();
             if (!rawText) return "";
+
+            if (aiModeCheck.checked && apiKeyInput.value.trim()) {
+                try {
+                    const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKeyInput.value.trim()}`;
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            q: rawText,
+                            target: 'pt'
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.data && data.data.translations && data.data.translations.length > 0) {
+                        return decodeHTMLEntities(data.data.translations[0].translatedText);
+                    }
+                } catch (err) {
+                    console.error("Erro na tradução com IA:", err);
+                }
+            }
+
             try {
                 const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawText)}&langpair=en|pt-BR&mt=1`;
                 const response = await fetch(url);
@@ -302,7 +347,13 @@
 
         function saveData() {
             localStorage.setItem('reader_data_v3', JSON.stringify({ 
-                tabs, activeTabId, speed: speedRange.value, showControls, selectedVoiceIdentifier
+                tabs,
+                activeTabId,
+                speed: speedRange.value,
+                showControls,
+                selectedVoiceIdentifier,
+                aiMode: aiModeCheck.checked,
+                apiKey: apiKeyInput.value
             }));
         }
 
@@ -316,6 +367,8 @@
                 speedValue.innerText = speedRange.value + 'x';
                 showControls = !!data.showControls;
                 selectedVoiceIdentifier = data.selectedVoiceIdentifier || data.selectedVoiceName || '';
+                aiModeCheck.checked = !!data.aiMode;
+                apiKeyInput.value = data.apiKey || '';
             }
             updateControlsVisibility();
             switchTab(activeTabId);
@@ -546,18 +599,58 @@
 
         btnStopSelection.onclick = () => {
             window.speechSynthesis.cancel();
+            if (currentAiAudio) {
+                currentAiAudio.pause();
+                currentAiAudio = null;
+            }
         };
 
-        btnSpeakSelection.onclick = () => {
+        btnSpeakSelection.onclick = async () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             const all = Array.from(textDisplay.querySelectorAll('span'));
             const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
 
-            if (voices.length === 0) populateVoices();
+            if (!text.trim()) return;
+
+            // Cancela qualquer áudio em execução (Sistema ou IA)
             window.speechSynthesis.cancel();
+            if (currentAiAudio) {
+                currentAiAudio.pause();
+                currentAiAudio = null;
+            }
+
+            if (aiModeCheck.checked && apiKeyInput.value.trim()) {
+                try {
+                    const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKeyInput.value.trim()}`;
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            input: { text: text },
+                            voice: { languageCode: 'en-US', name: 'en-US-Wavenet-A' },
+                            audioConfig: {
+                                audioEncoding: 'MP3',
+                                speakingRate: Math.max(0.25, Math.min(4.0, parseFloat(speedRange.value)))
+                            }
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.audioContent) {
+                        const audioBlob = new Blob([Uint8Array.from(atob(data.audioContent), c => c.charCodeAt(0))], { type: 'audio/mp3' });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        currentAiAudio = new Audio(audioUrl);
+                        currentAiAudio.onended = () => { URL.revokeObjectURL(audioUrl); };
+                        currentAiAudio.play();
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Erro no TTS com IA:", err);
+                }
+            }
+
+            if (voices.length === 0) populateVoices();
 
             const startSpeech = () => {
-                if (!text.trim()) return;
                 currentUtterance = new SpeechSynthesisUtterance(text);
                 const selectedVoice = voices.find(v => (v.voiceURI || v.name) === voiceSelect.value);
                 if (selectedVoice) {
@@ -603,6 +696,8 @@
 
         window.speechSynthesis.onvoiceschanged = populateVoices;
         speedRange.oninput = () => { speedValue.innerText = speedRange.value + 'x'; saveData(); };
+        aiModeCheck.onchange = () => saveData();
+        apiKeyInput.oninput = () => saveData();
         textInput.oninput = () => { const t = tabs.find(t => t.id === activeTabId); if (t) t.text = textInput.value; saveData(); };
 
         window.onload = () => {

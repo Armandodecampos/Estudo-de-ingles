@@ -198,7 +198,10 @@
                 </div>
                 <div class="flex flex-col gap-2 w-full sm:w-80">
                     <div class="flex justify-between items-center px-1">
-                        <label class="panel-header-title">Chave API Google</label>
+                        <div class="flex items-center gap-2">
+                            <label class="panel-header-title">Chave API Google</label>
+                            <a href="https://console.cloud.google.com/apis/library/texttospeech.googleapis.com" target="_blank" class="text-[9px] font-bold text-blue-600 hover:underline">ATIVAR APIS</a>
+                        </div>
                         <span id="ai-error-badge" class="text-[9px] font-black text-red-600 bg-red-100 px-2 py-0.5 rounded-full hidden">ERRO API</span>
                     </div>
                     <input type="password" id="api-key-input" placeholder="Insira sua API Key..." class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none focus:border-blue-500">
@@ -345,6 +348,11 @@
                 } catch (err) {
                     console.error("Erro na tradução com IA:", err.message);
                     aiErrorBadge.classList.remove('hidden');
+                    if (err.message.includes('disabled') || err.message.includes('not been used')) {
+                        aiErrorBadge.innerText = "API DESATIVADA";
+                    } else {
+                        aiErrorBadge.innerText = "ERRO API";
+                    }
                 }
             }
 
@@ -669,6 +677,11 @@
                 } catch (err) {
                     console.error("Erro no TTS com IA:", err.message);
                     aiErrorBadge.classList.remove('hidden');
+                    if (err.message.includes('disabled') || err.message.includes('not been used')) {
+                        aiErrorBadge.innerText = "API DESATIVADA";
+                    } else {
+                        aiErrorBadge.innerText = "ERRO API";
+                    }
                 }
             }
 

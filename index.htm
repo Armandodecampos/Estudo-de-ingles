@@ -114,19 +114,12 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
 
-        .tab-wiggle {
-            animation: wiggle 0.3s ease-in-out infinite;
-            border: 2px solid #f59e0b !important; /* Amber-500 */
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        .tab-lifted {
+            transform: translateY(-12px) scale(1.05);
+            border: 2px solid #3b82f6 !important; /* Blue-500 */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+            z-index: 50;
             cursor: move !important;
-        }
-
-        @keyframes wiggle {
-            0% { transform: rotate(0deg); }
-            25% { transform: rotate(1deg); }
-            50% { transform: rotate(0deg); }
-            75% { transform: rotate(-1deg); }
-            100% { transform: rotate(0deg); }
         }
 
         #controls-section {
@@ -379,6 +372,7 @@
         let draggedTabId = null;
         let tabToDeleteId = null;
         let isDragMode = false;
+        let liftedTabId = null;
         let pressTimer = null;
         let isScrolling = false;
         let scrollStartX, scrollLeft;
@@ -542,9 +536,10 @@
             tabsContainer.innerHTML = '';
             tabs.forEach(tab => {
                 const isActive = tab.id === activeTabId;
+                const isLifted = tab.id === liftedTabId;
                 const tabEl = document.createElement('div');
                 tabEl.draggable = isDragMode;
-                tabEl.className = `min-w-[100px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'} ${isDragMode ? 'tab-wiggle' : 'cursor-grab active:cursor-grabbing'}`;
+                tabEl.className = `min-w-[100px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'} ${isLifted ? 'tab-lifted' : (isDragMode ? '' : 'cursor-grab active:cursor-grabbing')}`;
                 
                 const startPress = (e) => {
                     if (isDragMode) return;
@@ -555,6 +550,7 @@
 
                     pressTimer = setTimeout(() => {
                         isDragMode = true;
+                        liftedTabId = tab.id;
                         renderTabs();
                     }, 3000);
                 };
@@ -603,6 +599,7 @@
                         const [moved] = tabs.splice(fromIdx, 1);
                         tabs.splice(toIdx, 0, moved);
                         isDragMode = false;
+                        liftedTabId = null;
                         renderTabs();
                         saveData();
                     }
@@ -892,6 +889,7 @@
         window.onclick = (e) => {
             if (isDragMode && !tabsContainer.contains(e.target)) {
                 isDragMode = false;
+                liftedTabId = null;
                 renderTabs();
             }
         };

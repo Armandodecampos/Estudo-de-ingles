@@ -381,6 +381,7 @@
             name: "Aba 1", 
             text: "", 
             isEditing: true, 
+            languageMode: 'en-pt',
             selectedIndices: [], 
             dictionary: { original: "", translated: "" } 
         }];
@@ -474,6 +475,9 @@
             if (dataRaw) {
                 const data = JSON.parse(dataRaw);
                 tabs = data.tabs || tabs;
+                tabs.forEach(tab => {
+                    if (!tab.languageMode) tab.languageMode = 'en-pt';
+                });
                 activeTabId = data.activeTabId || tabs[0].id;
                 languageMode = data.languageMode || 'en-pt';
                 speedRange.value = data.speed || "1.0";
@@ -636,6 +640,11 @@
             activeTabId = id;
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (currentTab) {
+                languageMode = currentTab.languageMode || 'en-pt';
+                if (languageModeSelect) languageModeSelect.value = languageMode;
+                updateLanguageUI();
+                populateVoices();
+
                 textInput.value = currentTab.text;
                 textInput.classList.toggle('hidden', !currentTab.isEditing);
                 textDisplay.classList.toggle('hidden', currentTab.isEditing);
@@ -674,7 +683,15 @@
 
         document.getElementById('btn-add-tab').onclick = () => {
             const id = Date.now();
-            tabs.push({ id, name: `Aba ${tabs.length + 1}`, text: "", isEditing: true, selectedIndices: [], dictionary: { original: "", translated: "" } });
+            tabs.push({
+                id,
+                name: `Aba ${tabs.length + 1}`,
+                text: "",
+                isEditing: true,
+                languageMode: 'en-pt',
+                selectedIndices: [],
+                dictionary: { original: "", translated: "" }
+            });
             switchTab(id);
         };
 
@@ -872,6 +889,10 @@
         };
         languageModeSelect.onchange = () => {
             languageMode = languageModeSelect.value;
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (currentTab) {
+                currentTab.languageMode = languageMode;
+            }
             updateLanguageUI();
 
             // Sugerir uma voz de IA adequada para o novo idioma

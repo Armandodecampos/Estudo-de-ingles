@@ -144,7 +144,7 @@
     <div id="rename-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center">
             <h3 class="text-xl font-black text-slate-900 mb-4">Renomear Aba</h3>
-            <input type="text" id="rename-input" class="w-full h-12 px-4 mb-6 rounded-xl border border-slate-300 focus:border-blue-500 outline-none text-center font-bold" maxlength="15">
+            <input type="text" id="rename-input" class="w-full h-12 px-4 mb-6 rounded-xl border border-slate-300 focus:border-blue-500 outline-none text-center font-bold">
             <div class="flex gap-3">
                 <button id="rename-cancel" class="flex-1 h-12 rounded-xl bg-slate-100 text-slate-700 font-bold">CANCELAR</button>
                 <button id="rename-confirm" class="flex-1 h-12 rounded-xl bg-blue-600 text-white font-bold">GUARDAR</button>
@@ -509,7 +509,7 @@
                 const isActive = tab.id === activeTabId;
                 const tabEl = document.createElement('div');
                 tabEl.draggable = true;
-                tabEl.className = `min-w-[100px] max-w-[180px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold cursor-grab active:cursor-grabbing transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'}`;
+                tabEl.className = `min-w-[100px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold cursor-grab active:cursor-grabbing transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'}`;
                 
                 tabEl.ondragstart = (e) => {
                     draggedTabId = tab.id;
@@ -537,7 +537,7 @@
                 };
 
                 const nameSpan = document.createElement('span');
-                nameSpan.className = "truncate flex-1 pointer-events-none";
+                nameSpan.className = "flex-1 pointer-events-none";
                 nameSpan.textContent = tab.name;
                 
                 tabEl.onclick = (e) => { if (e.target === tabEl) switchTab(tab.id); };

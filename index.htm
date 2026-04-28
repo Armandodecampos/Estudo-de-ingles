@@ -114,6 +114,20 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
 
+        .tab-wiggle {
+            animation: wiggle 0.3s ease-in-out infinite;
+            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+            cursor: move !important;
+        }
+
+        @keyframes wiggle {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(1deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-1deg); }
+            100% { transform: rotate(0deg); }
+        }
+
         #controls-section {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             max-height: 500px;
@@ -363,6 +377,8 @@
         let currentAiAudio = null;
         let draggedTabId = null;
         let tabToDeleteId = null;
+        let isDragMode = false;
+        let pressTimer = null;
 
         function decodeHTMLEntities(text) {
             const textArea = document.createElement('textarea');
@@ -523,10 +539,33 @@
             tabs.forEach(tab => {
                 const isActive = tab.id === activeTabId;
                 const tabEl = document.createElement('div');
-                tabEl.draggable = true;
-                tabEl.className = `min-w-[100px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold cursor-grab active:cursor-grabbing transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'}`;
+                tabEl.draggable = isDragMode;
+                tabEl.className = `min-w-[100px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'} ${isDragMode ? 'tab-wiggle' : 'cursor-grab active:cursor-grabbing'}`;
                 
+                const startPress = () => {
+                    if (isDragMode) return;
+                    pressTimer = setTimeout(() => {
+                        isDragMode = true;
+                        renderTabs();
+                    }, 3000);
+                };
+
+                const cancelPress = () => {
+                    clearTimeout(pressTimer);
+                };
+
+                tabEl.addEventListener('mousedown', startPress);
+                tabEl.addEventListener('touchstart', startPress, { passive: true });
+                tabEl.addEventListener('mouseup', cancelPress);
+                tabEl.addEventListener('mouseleave', cancelPress);
+                tabEl.addEventListener('touchend', cancelPress);
+                tabEl.addEventListener('touchmove', cancelPress, { passive: true });
+
                 tabEl.ondragstart = (e) => {
+                    if (!isDragMode) {
+                        e.preventDefault();
+                        return;
+                    }
                     draggedTabId = tab.id;
                     tabEl.classList.add('tab-dragging');
                 };
@@ -542,6 +581,7 @@
                         const toIdx = tabs.findIndex(t => t.id === tab.id);
                         const [moved] = tabs.splice(fromIdx, 1);
                         tabs.splice(toIdx, 0, moved);
+                        isDragMode = false;
                         renderTabs();
                         saveData();
                     }
@@ -808,6 +848,13 @@
             saveData();
         };
         textInput.oninput = () => { const t = tabs.find(t => t.id === activeTabId); if (t) t.text = textInput.value; saveData(); };
+
+        window.onclick = (e) => {
+            if (isDragMode && !tabsContainer.contains(e.target)) {
+                isDragMode = false;
+                renderTabs();
+            }
+        };
 
         window.onload = () => {
             loadData();

@@ -373,7 +373,6 @@
         let tabToDeleteId = null;
         let isDragMode = false;
         let liftedTabId = null;
-        let pressTimer = null;
         let isScrolling = false;
         let scrollStartX, scrollLeft;
         let pressStartX, pressStartY;
@@ -547,34 +546,25 @@
                     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                     pressStartX = clientX;
                     pressStartY = clientY;
-
-                    pressTimer = setTimeout(() => {
-                        isDragMode = true;
-                        liftedTabId = tab.id;
-                        renderTabs();
-                    }, 3000);
-                };
-
-                const cancelPress = (e) => {
-                    clearTimeout(pressTimer);
                 };
 
                 const movePress = (e) => {
-                    if (!pressTimer) return;
+                    if (isDragMode) return;
                     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-                    const dist = Math.sqrt(Math.pow(clientX - pressStartX, 2) + Math.pow(clientY - pressStartY, 2));
-                    if (dist > 10) {
-                        clearTimeout(pressTimer);
-                        pressTimer = null;
+                    const deltaX = clientX - pressStartX;
+                    const deltaY = clientY - pressStartY;
+
+                    // Se mover para cima significativamente, ativa o modo de arrastar (lift)
+                    if (deltaY < -15 && Math.abs(deltaY) > Math.abs(deltaX)) {
+                        isDragMode = true;
+                        liftedTabId = tab.id;
+                        renderTabs();
                     }
                 };
 
                 tabEl.addEventListener('mousedown', startPress);
                 tabEl.addEventListener('touchstart', startPress, { passive: true });
-                tabEl.addEventListener('mouseup', cancelPress);
-                tabEl.addEventListener('mouseleave', cancelPress);
-                tabEl.addEventListener('touchend', cancelPress);
                 tabEl.addEventListener('mousemove', movePress);
                 tabEl.addEventListener('touchmove', movePress, { passive: true });
 
@@ -868,7 +858,7 @@
         textInput.oninput = () => { const t = tabs.find(t => t.id === activeTabId); if (t) t.text = textInput.value; saveData(); };
 
         tabsContainer.addEventListener('mousedown', (e) => {
-            if (isDragMode) return;
+            if (isDragMode || liftedTabId) return;
             isScrolling = true;
             scrollStartX = e.pageX - tabsContainer.offsetLeft;
             scrollLeft = tabsContainer.scrollLeft;
@@ -884,6 +874,16 @@
 
         window.addEventListener('mouseup', () => {
             isScrolling = false;
+            if (isDragMode && liftedTabId) {
+                // If we were in drag mode but didn't drop (just released mouse), cancel drag mode
+                setTimeout(() => {
+                    if (isDragMode) {
+                        isDragMode = false;
+                        liftedTabId = null;
+                        renderTabs();
+                    }
+                }, 100);
+            }
         });
 
         window.onclick = (e) => {

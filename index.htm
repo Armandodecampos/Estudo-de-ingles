@@ -199,6 +199,13 @@
         <!-- Painel de Voz -->
         <div id="controls-section" class="bg-slate-100 p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 shrink-0 hidden-panel">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6">
+                <div class="flex flex-col gap-2 w-full sm:w-48">
+                    <label class="panel-header-title px-1">Direção</label>
+                    <select id="language-mode-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none">
+                        <option value="en-pt">🇺🇸 EN → 🇧🇷 PT</option>
+                        <option value="pt-en">🇧🇷 PT → 🇺🇸 EN</option>
+                    </select>
+                </div>
                 <div class="flex flex-col gap-2 flex-1">
                     <label id="voice-label" class="panel-header-title px-1">Voz do Sistema</label>
                     <select id="voice-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none"></select>
@@ -233,6 +240,16 @@
                             <option value="en-IN-Neural2-B">Indiano: en-IN-Neural2-B (Masculina)</option>
                             <option value="en-CA-Neural2-A">Canadense: en-CA-Neural2-A (Feminina)</option>
                             <option value="en-CA-Neural2-B">Canadense: en-CA-Neural2-B (Masculina)</option>
+                        </optgroup>
+                        <optgroup label="Português (Brasil)">
+                            <option value="pt-BR-Neural2-A">pt-BR-Neural2-A (Feminina)</option>
+                            <option value="pt-BR-Neural2-B">pt-BR-Neural2-B (Masculina)</option>
+                            <option value="pt-BR-Wavenet-A">pt-BR-Wavenet-A (Feminina)</option>
+                        </optgroup>
+                        <optgroup label="Português (Portugal)">
+                            <option value="pt-PT-Neural2-A">pt-PT-Neural2-A (Feminina)</option>
+                            <option value="pt-PT-Neural2-B">pt-PT-Neural2-B (Masculina)</option>
+                            <option value="pt-PT-Wavenet-A">pt-PT-Wavenet-A (Feminina)</option>
                         </optgroup>
                     </select>
                 </div>
@@ -346,6 +363,7 @@
         const aiModeCheck = document.getElementById('ai-mode-check');
         const apiKeyInput = document.getElementById('api-key-input');
         const aiErrorBadge = document.getElementById('ai-error-badge');
+        const languageModeSelect = document.getElementById('language-mode-select');
         const tabsContainer = document.getElementById('tabs-container');
         const activeTabTitle = document.getElementById('active-tab-title');
         
@@ -367,6 +385,7 @@
             dictionary: { original: "", translated: "" } 
         }];
         let activeTabId = tabs[0].id;
+        let languageMode = 'en-pt';
         let showControls = false;
         let selectedVoiceIdentifier = '';
         let selectedAiVoiceIdentifier = 'en-US-Neural2-F';
@@ -392,6 +411,9 @@
             const rawText = text.trim();
             if (!rawText) return "";
 
+            const targetLang = languageMode === 'en-pt' ? 'pt' : 'en';
+            const langPair = languageMode === 'en-pt' ? 'en|pt-BR' : 'pt-BR|en';
+
             if (aiModeCheck.checked && apiKeyInput.value.trim()) {
                 try {
                     const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKeyInput.value.trim()}`;
@@ -400,7 +422,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             q: rawText,
-                            target: 'pt'
+                            target: targetLang
                         })
                     });
 
@@ -425,7 +447,7 @@
             }
 
             try {
-                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawText)}&langpair=en|pt-BR&mt=1`;
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawText)}&langpair=${langPair}&mt=1`;
                 const response = await fetch(url);
                 const data = await response.json();
                 return data.responseData?.translatedText || "Tradução indisponível.";
@@ -436,6 +458,7 @@
             localStorage.setItem('reader_data_v3', JSON.stringify({ 
                 tabs,
                 activeTabId,
+                languageMode,
                 speed: speedRange.value,
                 showControls,
                 selectedVoiceIdentifier,
@@ -451,6 +474,7 @@
                 const data = JSON.parse(dataRaw);
                 tabs = data.tabs || tabs;
                 activeTabId = data.activeTabId || tabs[0].id;
+                languageMode = data.languageMode || 'en-pt';
                 speedRange.value = data.speed || "1.0";
                 speedValue.innerText = speedRange.value + 'x';
                 showControls = !!data.showControls;
@@ -459,10 +483,20 @@
                 aiModeCheck.checked = !!data.aiMode;
                 apiKeyInput.value = data.apiKey || '';
 
+                if (languageModeSelect) languageModeSelect.value = languageMode;
                 if (aiVoiceSelect) aiVoiceSelect.value = selectedAiVoiceIdentifier;
             }
+            updateLanguageUI();
             updateControlsVisibility();
             switchTab(activeTabId);
+        }
+
+        function updateLanguageUI() {
+            if (languageMode === 'en-pt') {
+                textInput.placeholder = "Insira o texto em inglês...";
+            } else {
+                textInput.placeholder = "Insira o texto em português...";
+            }
         }
 
         function updateStudyActionsVisibility() {
@@ -782,7 +816,7 @@
                     currentUtterance.voice = selectedVoice;
                     currentUtterance.lang = selectedVoice.lang;
                 } else {
-                    currentUtterance.lang = 'en-US';
+                    currentUtterance.lang = languageMode === 'en-pt' ? 'en-US' : 'pt-BR';
                 }
                 currentUtterance.rate = parseFloat(speedRange.value);
                 window.speechSynthesis.speak(currentUtterance);
@@ -802,8 +836,9 @@
             const allVoices = window.speechSynthesis.getVoices();
             if (allVoices.length === 0) return;
 
-            voices = allVoices.filter(v => v.lang.startsWith('en'));
-            if (voices.length === 0) voices = allVoices; // Fallback if no English voices found
+            const prefix = languageMode === 'en-pt' ? 'en' : 'pt';
+            voices = allVoices.filter(v => v.lang.startsWith(prefix));
+            if (voices.length === 0) voices = allVoices; // Fallback if no voices found
 
             voiceSelect.innerHTML = voices.map((v) => `<option value="${v.voiceURI || v.name}">${v.name} (${v.lang})</option>`).join('');
 
@@ -826,6 +861,21 @@
 
         window.speechSynthesis.onvoiceschanged = populateVoices;
         speedRange.oninput = () => { speedValue.innerText = speedRange.value + 'x'; saveData(); };
+        languageModeSelect.onchange = () => {
+            languageMode = languageModeSelect.value;
+            updateLanguageUI();
+
+            // Sugerir uma voz de IA adequada para o novo idioma
+            if (languageMode === 'en-pt') {
+                aiVoiceSelect.value = 'en-US-Neural2-F';
+            } else {
+                aiVoiceSelect.value = 'pt-BR-Neural2-A';
+            }
+            selectedAiVoiceIdentifier = aiVoiceSelect.value;
+
+            populateVoices();
+            saveData();
+        };
         aiModeCheck.onchange = () => {
             updateControlsVisibility();
             saveData();

@@ -30,17 +30,14 @@
         .word-highlight {
             background-color: #3b82f6 !important;
             color: white !important;
-            border-radius: 4px;
             transition: all 0.1s ease;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
         }
 
         #text-display span {
             cursor: pointer;
             display: inline-block;
-            padding: 1px 2px;
-            border-radius: 4px;
-            margin: 0 1px;
+            padding: 1px 0;
+            margin: 0;
             transition: background-color 0.2s;
         }
 
@@ -532,19 +529,29 @@
             textDisplay.innerHTML = '';
             if (currentTab.text.trim()) {
                 let wordCounter = 0;
-                currentTab.text.split(/(\s+)/).forEach(fragment => {
+                const fragments = currentTab.text.split(/(\s+)/);
+                for (let i = 0; i < fragments.length; i++) {
+                    const fragment = fragments[i];
                     if (/\s+/.test(fragment)) {
+                        // Se for apenas espaço no início do texto, ou espaços órfãos
                         textDisplay.appendChild(document.createTextNode(fragment));
                     } else {
+                        // É uma palavra
                         const span = document.createElement('span');
-                        span.textContent = fragment;
+                        let content = fragment;
+                        // Tenta pegar o próximo fragmento se for espaço
+                        if (i + 1 < fragments.length && /\s+/.test(fragments[i + 1])) {
+                            content += fragments[i + 1];
+                            i++; // Pula o próximo fragmento pois já o incluímos
+                        }
+                        span.textContent = content;
                         const idx = wordCounter++;
                         span.dataset.index = idx;
                         if (currentTab.selectedIndices.includes(idx)) span.classList.add('word-highlight');
                         span.onclick = () => handleWordClick(span, idx);
                         textDisplay.appendChild(span);
                     }
-                });
+                }
             }
             
             btnToggleAll.textContent = (currentTab.selectedIndices.length > 0 && currentTab.selectedIndices.length === textDisplay.querySelectorAll('span').length) 
@@ -668,7 +675,7 @@
             if (!currentTab || currentTab.selectedIndices.length === 0) return;
             
             const allSpans = Array.from(textDisplay.querySelectorAll('span'));
-            const selection = currentTab.selectedIndices.map(i => allSpans.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
+            const selection = currentTab.selectedIndices.map(i => allSpans.find(s => parseInt(s.dataset.index) === i)?.textContent.trim() || "").join(' ');
             
             currentTab.dictionary.original = selection;
             resultState.classList.add('hidden');
@@ -770,7 +777,7 @@
         btnSpeakSelection.onclick = async () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             const all = Array.from(textDisplay.querySelectorAll('span'));
-            const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent || "").join(' ');
+            const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent.trim() || "").join(' ');
 
             if (!text.trim()) return;
 

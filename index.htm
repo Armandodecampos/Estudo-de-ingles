@@ -35,7 +35,7 @@
 
         #text-display span {
             cursor: pointer;
-            display: inline-block;
+            display: inline;
             padding: 1px 0;
             margin: 0;
             transition: background-color 0.2s;
@@ -539,8 +539,8 @@
                         // É uma palavra
                         const span = document.createElement('span');
                         let content = fragment;
-                        // Tenta pegar o próximo fragmento se for espaço
-                        if (i + 1 < fragments.length && /\s+/.test(fragments[i + 1])) {
+                        // Tenta pegar o próximo fragmento se for espaço (mas não se contiver quebra de linha)
+                        if (i + 1 < fragments.length && /\s+/.test(fragments[i + 1]) && !fragments[i + 1].includes('\n')) {
                             content += fragments[i + 1];
                             i++; // Pula o próximo fragmento pois já o incluímos
                         }

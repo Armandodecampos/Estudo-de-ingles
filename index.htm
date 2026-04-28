@@ -116,7 +116,8 @@
 
         .tab-wiggle {
             animation: wiggle 0.3s ease-in-out infinite;
-            border: 2px solid rgba(255, 255, 255, 0.5) !important;
+            border: 2px solid #f59e0b !important; /* Amber-500 */
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
             cursor: move !important;
         }
 
@@ -379,6 +380,9 @@
         let tabToDeleteId = null;
         let isDragMode = false;
         let pressTimer = null;
+        let isScrolling = false;
+        let scrollStartX, scrollLeft;
+        let pressStartX, pressStartY;
 
         function decodeHTMLEntities(text) {
             const textArea = document.createElement('textarea');
@@ -542,16 +546,32 @@
                 tabEl.draggable = isDragMode;
                 tabEl.className = `min-w-[100px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'} ${isDragMode ? 'tab-wiggle' : 'cursor-grab active:cursor-grabbing'}`;
                 
-                const startPress = () => {
+                const startPress = (e) => {
                     if (isDragMode) return;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    pressStartX = clientX;
+                    pressStartY = clientY;
+
                     pressTimer = setTimeout(() => {
                         isDragMode = true;
                         renderTabs();
                     }, 3000);
                 };
 
-                const cancelPress = () => {
+                const cancelPress = (e) => {
                     clearTimeout(pressTimer);
+                };
+
+                const movePress = (e) => {
+                    if (!pressTimer) return;
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    const dist = Math.sqrt(Math.pow(clientX - pressStartX, 2) + Math.pow(clientY - pressStartY, 2));
+                    if (dist > 10) {
+                        clearTimeout(pressTimer);
+                        pressTimer = null;
+                    }
                 };
 
                 tabEl.addEventListener('mousedown', startPress);
@@ -559,7 +579,8 @@
                 tabEl.addEventListener('mouseup', cancelPress);
                 tabEl.addEventListener('mouseleave', cancelPress);
                 tabEl.addEventListener('touchend', cancelPress);
-                tabEl.addEventListener('touchmove', cancelPress, { passive: true });
+                tabEl.addEventListener('mousemove', movePress);
+                tabEl.addEventListener('touchmove', movePress, { passive: true });
 
                 tabEl.ondragstart = (e) => {
                     if (!isDragMode) {
@@ -848,6 +869,25 @@
             saveData();
         };
         textInput.oninput = () => { const t = tabs.find(t => t.id === activeTabId); if (t) t.text = textInput.value; saveData(); };
+
+        tabsContainer.addEventListener('mousedown', (e) => {
+            if (isDragMode) return;
+            isScrolling = true;
+            scrollStartX = e.pageX - tabsContainer.offsetLeft;
+            scrollLeft = tabsContainer.scrollLeft;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isScrolling) return;
+            e.preventDefault();
+            const x = e.pageX - tabsContainer.offsetLeft;
+            const walk = (x - scrollStartX) * 1.5;
+            tabsContainer.scrollLeft = scrollLeft - walk;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isScrolling = false;
+        });
 
         window.onclick = (e) => {
             if (isDragMode && !tabsContainer.contains(e.target)) {

@@ -104,6 +104,10 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
+        .tab-element {
+            transition: transform 0.2s ease-out, background-color 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+
         .tab-dragging {
             opacity: 0.4;
             transform: scale(0.95);
@@ -376,6 +380,7 @@
         let isScrolling = false;
         let scrollStartX, scrollLeft;
         let pressStartX, pressStartY;
+        let currentDragX, currentDragY;
 
         function decodeHTMLEntities(text) {
             const textArea = document.createElement('textarea');
@@ -538,7 +543,7 @@
                 const isLifted = tab.id === liftedTabId;
                 const tabEl = document.createElement('div');
                 tabEl.draggable = isDragMode;
-                tabEl.className = `min-w-[100px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold transition-all border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'} ${isLifted ? 'tab-lifted' : (isDragMode ? '' : 'cursor-grab active:cursor-grabbing')}`;
+                tabEl.className = `tab-element min-w-[100px] flex items-center justify-between gap-1 px-4 py-2.5 rounded-xl text-xs font-bold border border-transparent shrink-0 ${isActive ? 'tab-active' : 'bg-white/10 text-white/70 hover:bg-white/20'} ${isLifted ? 'tab-lifted' : (isDragMode ? '' : 'cursor-grab active:cursor-grabbing')}`;
                 
                 const startPress = (e) => {
                     if (isDragMode) return;
@@ -549,7 +554,7 @@
                 };
 
                 const movePress = (e) => {
-                    if (isDragMode) return;
+            if (isDragMode || isScrolling) return;
                     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
                     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                     const deltaX = clientX - pressStartX;
@@ -558,7 +563,10 @@
                     // Se mover para cima significativamente, ativa o modo de arrastar (lift)
                     if (deltaY < -15 && Math.abs(deltaY) > Math.abs(deltaX)) {
                         isDragMode = true;
+                isScrolling = false;
                         liftedTabId = tab.id;
+                        currentDragX = clientX;
+                        currentDragY = clientY;
                         renderTabs();
                     }
                 };
@@ -568,36 +576,7 @@
                 tabEl.addEventListener('mousemove', movePress);
                 tabEl.addEventListener('touchmove', movePress, { passive: true });
 
-                tabEl.ondragstart = (e) => {
-                    if (!isDragMode) {
-                        e.preventDefault();
-                        return;
-                    }
-                    draggedTabId = tab.id;
-                    tabEl.classList.add('tab-dragging');
-                };
-                tabEl.ondragover = (e) => {
-                    e.preventDefault();
-                    tabEl.classList.add('tab-drag-over');
-                };
-                tabEl.ondragleave = () => tabEl.classList.remove('tab-drag-over');
-                tabEl.ondrop = (e) => {
-                    e.preventDefault();
-                    if (draggedTabId !== tab.id) {
-                        const fromIdx = tabs.findIndex(t => t.id === draggedTabId);
-                        const toIdx = tabs.findIndex(t => t.id === tab.id);
-                        const [moved] = tabs.splice(fromIdx, 1);
-                        tabs.splice(toIdx, 0, moved);
-                        isDragMode = false;
-                        liftedTabId = null;
-                        renderTabs();
-                        saveData();
-                    }
-                };
-                tabEl.ondragend = () => {
-                    tabEl.classList.remove('tab-dragging');
-                    document.querySelectorAll('.tab-drag-over').forEach(el => el.classList.remove('tab-drag-over'));
-                };
+                tabEl.ondragstart = (e) => { e.preventDefault(); };
 
                 const nameSpan = document.createElement('span');
                 nameSpan.className = "flex-1 pointer-events-none";
@@ -859,32 +838,124 @@
 
         tabsContainer.addEventListener('mousedown', (e) => {
             if (isDragMode || liftedTabId) return;
-            isScrolling = true;
-            scrollStartX = e.pageX - tabsContainer.offsetLeft;
+            scrollStartX = e.pageX;
             scrollLeft = tabsContainer.scrollLeft;
         });
 
-        window.addEventListener('mousemove', (e) => {
-            if (!isScrolling) return;
-            e.preventDefault();
-            const x = e.pageX - tabsContainer.offsetLeft;
-            const walk = (x - scrollStartX) * 1.5;
-            tabsContainer.scrollLeft = scrollLeft - walk;
-        });
+        tabsContainer.addEventListener('touchstart', (e) => {
+            if (isDragMode || liftedTabId) return;
+            scrollStartX = e.touches[0].pageX;
+            scrollLeft = tabsContainer.scrollLeft;
+        }, { passive: true });
 
-        window.addEventListener('mouseup', () => {
-            isScrolling = false;
-            if (isDragMode && liftedTabId) {
-                // If we were in drag mode but didn't drop (just released mouse), cancel drag mode
-                setTimeout(() => {
-                    if (isDragMode) {
-                        isDragMode = false;
-                        liftedTabId = null;
-                        renderTabs();
-                    }
-                }, 100);
+        const handleMove = (e) => {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const pageX = e.touches ? e.touches[0].pageX : e.pageX;
+
+            if (!isScrolling && !isDragMode && scrollStartX !== undefined) {
+                const dx = Math.abs(pageX - scrollStartX);
+                if (dx > 10) {
+                    isScrolling = true;
+                }
             }
-        });
+
+            if (isScrolling) {
+                if (e.cancelable) e.preventDefault();
+                const walk = (pageX - scrollStartX) * 1.5;
+                tabsContainer.scrollLeft = scrollLeft - walk;
+                return;
+            }
+
+            if (isDragMode && liftedTabId) {
+                if (e.cancelable) e.preventDefault();
+                currentDragX = clientX;
+                currentDragY = clientY;
+
+                const deltaX = clientX - pressStartX;
+                const deltaY = clientY - pressStartY;
+
+                const liftedEl = document.querySelector('.tab-lifted');
+                if (liftedEl) {
+                    liftedEl.style.transition = 'none';
+                    liftedEl.style.transform = `translate(${deltaX}px, ${deltaY - 12}px) scale(1.05)`;
+
+                    const midX = clientX;
+                    const children = [...tabsContainer.children];
+                    const neighbor = children.find(child => {
+                        if (child === liftedEl) return false;
+                        const r = child.getBoundingClientRect();
+                        const threshold = r.left + r.width / 2;
+                        const fromIdx = tabs.findIndex(t => t.id === liftedTabId);
+                        const toIdx = children.indexOf(child);
+
+                        if (toIdx > fromIdx) {
+                            return midX > threshold;
+                        } else {
+                            return midX < threshold;
+                        }
+                    });
+
+                    if (neighbor) {
+                        const fromIdx = tabs.findIndex(t => t.id === liftedTabId);
+                        const toIdx = children.indexOf(neighbor);
+
+                        if (fromIdx !== -1 && toIdx !== -1) {
+                            const tabRects = children.map(c => c.getBoundingClientRect());
+                            const [moved] = tabs.splice(fromIdx, 1);
+                            tabs.splice(toIdx, 0, moved);
+
+                            const oldLiftedRect = liftedEl.getBoundingClientRect();
+                            if (toIdx > fromIdx) {
+                                tabsContainer.insertBefore(liftedEl, neighbor.nextSibling);
+                            } else {
+                                tabsContainer.insertBefore(liftedEl, neighbor);
+                            }
+
+                            const newLiftedRect = liftedEl.getBoundingClientRect();
+                            pressStartX += (newLiftedRect.left - oldLiftedRect.left);
+                            pressStartY += (newLiftedRect.top - oldLiftedRect.top);
+
+                            const newChildren = [...tabsContainer.children];
+                            newChildren.forEach((child) => {
+                                if (child === liftedEl) return;
+                                const oldIdx = children.indexOf(child);
+                                if (oldIdx === -1) return;
+
+                                const oldRect = tabRects[oldIdx];
+                                const newRect = child.getBoundingClientRect();
+                                const dx = oldRect.left - newRect.left;
+
+                                if (Math.abs(dx) > 0.5) {
+                                    child.style.transition = 'none';
+                                    child.style.transform = `translateX(${dx}px)`;
+                                    child.offsetHeight;
+                                    child.style.transition = 'transform 0.2s ease-out';
+                                    child.style.transform = '';
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        };
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchmove', handleMove, { passive: false });
+
+        const handleEnd = () => {
+            isScrolling = false;
+            scrollStartX = undefined;
+            if (isDragMode && liftedTabId) {
+                isDragMode = false;
+                liftedTabId = null;
+                renderTabs();
+                saveData();
+            }
+        };
+
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('touchend', handleEnd);
 
         window.onclick = (e) => {
             if (isDragMode && !tabsContainer.contains(e.target)) {

@@ -259,7 +259,7 @@
                         <span id="speed-value" class="text-sm font-bold text-white bg-blue-700 px-3 py-0.5 rounded-full">1.0x</span>
                     </div>
                     <div class="h-[44px] flex items-center">
-                        <input type="range" id="speed-range" min="0.1" max="1.0" step="0.1" value="1" class="w-full h-2.5 bg-slate-400 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                        <input type="range" id="speed-range" min="0.05" max="1.0" step="0.05" value="1" class="w-full h-2.5 bg-slate-400 rounded-lg appearance-none cursor-pointer accent-blue-600">
                     </div>
                 </div>
             </div>
@@ -392,6 +392,7 @@
         let voices = [];
         let currentUtterance = null;
         let currentAiAudio = null;
+        let currentAiBaseRate = 1.0;
         let draggedTabId = null;
         let tabToDeleteId = null;
         let isDragMode = false;
@@ -767,6 +768,7 @@
                 try {
                     const selectedAiVoice = aiVoiceSelect.value;
                     const langCode = selectedAiVoice.split('-').slice(0, 2).join('-');
+                    currentAiBaseRate = Math.max(0.25, Math.min(4.0, parseFloat(speedRange.value)));
 
                     const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKeyInput.value.trim()}`;
                     const response = await fetch(url, {
@@ -777,7 +779,7 @@
                             voice: { languageCode: langCode, name: selectedAiVoice },
                             audioConfig: {
                                 audioEncoding: 'MP3',
-                                speakingRate: Math.max(0.25, Math.min(4.0, parseFloat(speedRange.value)))
+                                speakingRate: currentAiBaseRate
                             }
                         })
                     });
@@ -792,6 +794,7 @@
                         const audioBlob = new Blob([Uint8Array.from(atob(data.audioContent), c => c.charCodeAt(0))], { type: 'audio/mp3' });
                         const audioUrl = URL.createObjectURL(audioBlob);
                         currentAiAudio = new Audio(audioUrl);
+                        currentAiAudio.playbackRate = parseFloat(speedRange.value) / currentAiBaseRate;
                         currentAiAudio.onended = () => { URL.revokeObjectURL(audioUrl); };
                         currentAiAudio.play();
                         return;
@@ -860,7 +863,13 @@
         };
 
         window.speechSynthesis.onvoiceschanged = populateVoices;
-        speedRange.oninput = () => { speedValue.innerText = speedRange.value + 'x'; saveData(); };
+        speedRange.oninput = () => {
+            speedValue.innerText = speedRange.value + 'x';
+            if (currentAiAudio && !currentAiAudio.paused) {
+                currentAiAudio.playbackRate = parseFloat(speedRange.value) / currentAiBaseRate;
+            }
+            saveData();
+        };
         languageModeSelect.onchange = () => {
             languageMode = languageModeSelect.value;
             updateLanguageUI();

@@ -300,6 +300,9 @@
 
                     <div id="study-actions-container" class="p-4 bg-white border-t border-slate-100 flex justify-center gap-2 hidden shrink-0">
                         <button id="btn-toggle-all" class="btn-standard bg-slate-800 hover:bg-slate-900 text-white shadow-xl min-w-[180px]">SELECIONAR TUDO</button>
+                        <button id="btn-loop-selection" class="btn-standard w-[44px] bg-slate-500 hover:bg-slate-600 text-white shadow-xl hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"></path><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><path d="M7 23l-4-4 4-4"></path><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                        </button>
                         <button id="btn-speak-selection" class="btn-standard w-[44px] bg-amber-500 hover:bg-amber-600 text-white shadow-xl hidden">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                         </button>
@@ -348,6 +351,7 @@
         const btnEditText = document.getElementById('btn-edit-text');
         const btnTranslateSelected = document.getElementById('btn-translate-selected');
         const btnToggleAll = document.getElementById('btn-toggle-all');
+        const btnLoopSelection = document.getElementById('btn-loop-selection');
         const btnSpeakSelection = document.getElementById('btn-speak-selection');
         const btnStopSelection = document.getElementById('btn-stop-selection');
         const studyActionsContainer = document.getElementById('study-actions-container');
@@ -391,6 +395,8 @@
         let currentUtterance = null;
         let currentAiAudio = null;
         let currentAiBaseRate = 1.0;
+        let isLoopEnabled = false;
+        let loopTimeout = null;
         let draggedTabId = null;
         let tabToDeleteId = null;
         let isDragMode = false;
@@ -463,7 +469,8 @@
                 selectedVoiceIdentifier,
                 selectedAiVoiceIdentifier,
                 aiMode: aiModeCheck.checked,
-                apiKey: apiKeyInput.value
+                apiKey: apiKeyInput.value,
+                isLoopEnabled
             }));
         }
 
@@ -484,13 +491,26 @@
                 selectedAiVoiceIdentifier = data.selectedAiVoiceIdentifier || 'en-US-Neural2-F';
                 aiModeCheck.checked = !!data.aiMode;
                 apiKeyInput.value = data.apiKey || '';
+                isLoopEnabled = !!data.isLoopEnabled;
 
                 if (languageModeSelect) languageModeSelect.value = languageMode;
                 if (aiVoiceSelect) aiVoiceSelect.value = selectedAiVoiceIdentifier;
             }
             updateLanguageUI();
             updateControlsVisibility();
+            updateLoopButtonUI();
             switchTab(activeTabId);
+        }
+
+        function updateLoopButtonUI() {
+            if (!btnLoopSelection) return;
+            if (isLoopEnabled) {
+                btnLoopSelection.classList.remove('bg-slate-500', 'hover:bg-slate-600');
+                btnLoopSelection.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            } else {
+                btnLoopSelection.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                btnLoopSelection.classList.add('bg-slate-500', 'hover:bg-slate-600');
+            }
         }
 
         function updateLanguageUI() {
@@ -558,6 +578,7 @@
                 ? "LIMPAR SELEÇÃO" : "SELECIONAR TUDO";
             
             const hasSelection = currentTab.selectedIndices.length > 0;
+            btnLoopSelection.classList.toggle('hidden', !hasSelection);
             btnSpeakSelection.classList.toggle('hidden', !hasSelection);
             btnStopSelection.classList.toggle('hidden', !hasSelection);
             updateDictionaryView();
@@ -645,6 +666,7 @@
 
         function switchTab(id) {
             activeTabId = id;
+            stopAudio();
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (currentTab) {
                 languageMode = currentTab.languageMode || 'en-pt';
@@ -666,6 +688,7 @@
             if (!currentTab) return;
             currentTab.isEditing = !currentTab.isEditing;
             currentTab.text = textInput.value;
+            stopAudio();
             saveData();
             switchTab(activeTabId);
         };
@@ -766,27 +789,38 @@
             saveData();
         };
 
-        btnStopSelection.onclick = () => {
+        btnLoopSelection.onclick = () => {
+            isLoopEnabled = !isLoopEnabled;
+            updateLoopButtonUI();
+            saveData();
+            if (!isLoopEnabled && loopTimeout) {
+                clearTimeout(loopTimeout);
+                loopTimeout = null;
+            }
+        };
+
+        function stopAudio() {
             window.speechSynthesis.cancel();
             if (currentAiAudio) {
                 currentAiAudio.pause();
                 currentAiAudio = null;
             }
-        };
+            if (loopTimeout) {
+                clearTimeout(loopTimeout);
+                loopTimeout = null;
+            }
+        }
 
-        btnSpeakSelection.onclick = async () => {
+        btnStopSelection.onclick = stopAudio;
+
+        async function playSelection() {
             const currentTab = tabs.find(t => t.id === activeTabId);
             const all = Array.from(textDisplay.querySelectorAll('span'));
             const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent.trim() || "").join(' ');
 
             if (!text.trim()) return;
 
-            // Cancela qualquer áudio em execução (Sistema ou IA)
-            window.speechSynthesis.cancel();
-            if (currentAiAudio) {
-                currentAiAudio.pause();
-                currentAiAudio = null;
-            }
+            stopAudio();
 
             if (aiModeCheck.checked && apiKeyInput.value.trim()) {
                 try {
@@ -819,7 +853,12 @@
                         const audioUrl = URL.createObjectURL(audioBlob);
                         currentAiAudio = new Audio(audioUrl);
                         currentAiAudio.playbackRate = parseFloat(speedRange.value) / currentAiBaseRate;
-                        currentAiAudio.onended = () => { URL.revokeObjectURL(audioUrl); };
+                        currentAiAudio.onended = () => {
+                            URL.revokeObjectURL(audioUrl);
+                            if (isLoopEnabled) {
+                                loopTimeout = setTimeout(playSelection, 500);
+                            }
+                        };
                         currentAiAudio.play();
                         return;
                     }
@@ -846,6 +885,11 @@
                     currentUtterance.lang = languageMode === 'en-pt' ? 'en-US' : 'pt-BR';
                 }
                 currentUtterance.rate = parseFloat(speedRange.value);
+                currentUtterance.onend = () => {
+                    if (isLoopEnabled) {
+                        loopTimeout = setTimeout(playSelection, 500);
+                    }
+                };
                 window.speechSynthesis.speak(currentUtterance);
             };
 
@@ -857,7 +901,9 @@
                 // Direct synchronous call on Desktop to preserve user gesture context.
                 startSpeech();
             }
-        };
+        }
+
+        btnSpeakSelection.onclick = playSelection;
 
         function populateVoices() {
             const allVoices = window.speechSynthesis.getVoices();

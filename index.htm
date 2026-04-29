@@ -397,6 +397,9 @@
         let currentAiBaseRate = 1.0;
         let isLoopEnabled = false;
         let loopTimeout = null;
+        let isDraggingWords = false;
+        let dragStartIndex = -1;
+        let isSelectionAdding = true;
         let draggedTabId = null;
         let tabToDeleteId = null;
         let isDragMode = false;
@@ -568,7 +571,11 @@
                         const idx = wordCounter++;
                         span.dataset.index = idx;
                         if (currentTab.selectedIndices.includes(idx)) span.classList.add('word-highlight');
-                        span.onclick = () => handleWordClick(span, idx);
+
+                        span.onmousedown = (e) => { e.preventDefault(); handleSelectionStart(idx); };
+                        span.onmouseenter = () => handleSelectionMove(idx);
+                        span.ontouchstart = (e) => { e.preventDefault(); handleSelectionStart(idx); };
+
                         textDisplay.appendChild(span);
                     }
                 }
@@ -585,22 +592,84 @@
             updateStudyActionsVisibility();
         }
 
-        function handleWordClick(span, index) {
+        textDisplay.ontouchmove = (e) => {
+            if (!isDraggingWords) return;
+            const touch = e.touches[0];
+            const el = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (el && el.tagName === 'SPAN' && el.parentElement === textDisplay) {
+                const idx = parseInt(el.dataset.index);
+                if (!isNaN(idx)) handleSelectionMove(idx);
+            }
+        };
+
+        function handleSelectionStart(index) {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (!currentTab || currentTab.isEditing) return;
+
+            isDraggingWords = true;
+            dragStartIndex = index;
+            isSelectionAdding = !currentTab.selectedIndices.includes(index);
             
-            const listIndex = currentTab.selectedIndices.indexOf(index);
-            if (listIndex > -1) {
-                span.classList.remove('word-highlight');
-                currentTab.selectedIndices.splice(listIndex, 1);
-            } else {
-                span.classList.add('word-highlight');
-                currentTab.selectedIndices.push(index);
+            toggleIndex(index, isSelectionAdding, false);
+            updateDisplayHighlightsOnly();
+        }
+
+        function handleSelectionMove(index) {
+            if (!isDraggingWords || dragStartIndex === -1) return;
+
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (!currentTab) return;
+
+            const start = Math.min(dragStartIndex, index);
+            const end = Math.max(dragStartIndex, index);
+
+            // Re-evaluamos o intervalo baseado no ponto inicial e atual
+            // Para simplificar, vamos apenas garantir que todos no intervalo sigam isSelectionAdding
+            for (let i = start; i <= end; i++) {
+                toggleIndex(i, isSelectionAdding, false);
             }
+            updateDisplayHighlightsOnly();
+        }
+
+        function handleSelectionEnd() {
+            if (!isDraggingWords) return;
+            isDraggingWords = false;
+            dragStartIndex = -1;
             
-            currentTab.selectedIndices.sort((a, b) => a - b);
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (currentTab) {
+                currentTab.selectedIndices.sort((a, b) => a - b);
+            }
             updateDisplay();
             saveData();
+        }
+
+        function toggleIndex(index, add, refresh = true) {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (!currentTab) return;
+
+            const listIndex = currentTab.selectedIndices.indexOf(index);
+            if (add) {
+                if (listIndex === -1) currentTab.selectedIndices.push(index);
+            } else {
+                if (listIndex > -1) currentTab.selectedIndices.splice(listIndex, 1);
+            }
+            if (refresh) updateDisplay();
+        }
+
+        function updateDisplayHighlightsOnly() {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (!currentTab) return;
+
+            const spans = textDisplay.querySelectorAll('span');
+            spans.forEach(span => {
+                const idx = parseInt(span.dataset.index);
+                if (currentTab.selectedIndices.includes(idx)) {
+                    span.classList.add('word-highlight');
+                } else {
+                    span.classList.remove('word-highlight');
+                }
+            });
         }
 
         function renderTabs() {
@@ -1087,8 +1156,14 @@
             }
         };
 
-        window.addEventListener('mouseup', handleEnd);
-        window.addEventListener('touchend', handleEnd);
+        window.addEventListener('mouseup', (e) => {
+            handleEnd();
+            handleSelectionEnd();
+        });
+        window.addEventListener('touchend', (e) => {
+            handleEnd();
+            handleSelectionEnd();
+        });
 
         window.onclick = (e) => {
             if (isDragMode && !tabsContainer.contains(e.target)) {

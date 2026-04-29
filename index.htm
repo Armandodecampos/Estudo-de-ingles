@@ -95,6 +95,10 @@
 
         .btn-standard:active { transform: scale(0.95); }
 
+        .capitalize-first::first-letter {
+            text-transform: uppercase;
+        }
+
         .tab-active {
             background-color: white !important;
             color: #1e3a8a !important;
@@ -325,7 +329,7 @@
 
                         <div id="result-state" class="hidden p-6 md:p-10">
                             <div class="pt-2">
-                                <p id="translated-text" class="text-slate-800 content-typography font-bold"></p>
+                                <div id="translated-text" class="text-slate-800 content-typography font-bold"></div>
                             </div>
                         </div>
 
@@ -412,7 +416,9 @@
 
             const targetLang = languageMode === 'en-pt' ? 'pt' : 'en';
             const langPair = languageMode === 'en-pt' ? 'en|pt-BR' : 'pt-BR|en';
+            const isSingleWord = !rawText.includes(' ');
 
+            let aiResult = null;
             if (aiModeCheck.checked && apiKeyInput.value.trim()) {
                 try {
                     const url = `https://translation.googleapis.com/language/translate/v2?key=${apiKeyInput.value.trim()}`;
@@ -425,32 +431,64 @@
                         })
                     });
 
-                    if (!response.ok) {
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.data && data.data.translations && data.data.translations.length > 0) {
+                            aiResult = decodeHTMLEntities(data.data.translations[0].translatedText);
+                        }
+                    } else {
                         const errData = await response.json();
                         throw new Error(errData.error?.message || "Erro na API de Tradução");
-                    }
-
-                    const data = await response.json();
-                    if (data.data && data.data.translations && data.data.translations.length > 0) {
-                        return decodeHTMLEntities(data.data.translations[0].translatedText);
                     }
                 } catch (err) {
                     console.error("Erro na tradução com IA:", err.message);
                     aiErrorBadge.classList.remove('hidden');
-                    if (err.message.includes('disabled') || err.message.includes('not been used')) {
-                        aiErrorBadge.innerText = "API DESATIVADA";
-                    } else {
-                        aiErrorBadge.innerText = "ERRO API";
-                    }
+                    aiErrorBadge.innerText = (err.message.includes('disabled') || err.message.includes('not been used')) ? "API DESATIVADA" : "ERRO API";
                 }
             }
+
+            if (!isSingleWord && aiResult) return aiResult;
 
             try {
                 const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawText)}&langpair=${langPair}&mt=1`;
                 const response = await fetch(url);
                 const data = await response.json();
-                return data.responseData?.translatedText || "Tradução indisponível.";
-            } catch (err) { return "Erro na tradução."; }
+
+                const mmMain = data.responseData?.translatedText;
+                const matches = data.matches || [];
+
+                if (isSingleWord) {
+                    const uniqueSet = new Set();
+                    const translations = [];
+
+                    const addUnique = (t) => {
+                        if (!t) return;
+                        const clean = t.trim();
+                        const key = clean.toLowerCase();
+                        if (key && key !== rawText.toLowerCase() && !uniqueSet.has(key)) {
+                            uniqueSet.add(key);
+                            translations.push(clean);
+                        }
+                    };
+
+                    addUnique(aiResult);
+                    addUnique(mmMain);
+                    matches.forEach(m => addUnique(m.translation));
+
+                    if (translations.length === 0) return aiResult || mmMain || "Tradução indisponível.";
+
+                    const primary = aiResult || mmMain || translations[0];
+                    const others = translations.filter(t => t.toLowerCase() !== primary.toLowerCase());
+
+                    if (others.length > 0) {
+                        return `${primary}<div class="panel-header-title mt-4 pt-3 border-t border-slate-100">Outras opções</div><div class="text-sm font-normal text-slate-500 mt-1 capitalize-first">${others.join(', ')}</div>`;
+                    }
+                    return primary;
+                }
+                return aiResult || mmMain || "Tradução indisponível.";
+            } catch (err) {
+                return aiResult || "Erro na tradução.";
+            }
         }
 
         function saveData() {
@@ -518,7 +556,7 @@
             } else {
                 emptyState.classList.add('hidden');
                 resultState.classList.remove('hidden');
-                translatedTextDisplay.innerText = currentTab.dictionary.translated || "...";
+                translatedTextDisplay.innerHTML = currentTab.dictionary.translated || "...";
             }
         }
 

@@ -196,13 +196,6 @@
         <!-- Painel de Voz -->
         <div id="controls-section" class="bg-slate-100 p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 shrink-0 hidden-panel">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6">
-                <div class="flex flex-col gap-2 w-full sm:w-48">
-                    <label class="panel-header-title px-1">Direção</label>
-                    <select id="language-mode-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none">
-                        <option value="en-pt">🇺🇸 EN → 🇧🇷 PT</option>
-                        <option value="pt-en">🇧🇷 PT → 🇺🇸 EN</option>
-                    </select>
-                </div>
                 <div class="flex flex-col gap-2 flex-1">
                     <label id="voice-label" class="panel-header-title px-1">Voz do Sistema</label>
                     <select id="voice-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none"></select>
@@ -289,7 +282,10 @@
             <div class="md:col-span-6 w-full flex flex-col min-h-0">
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 relative full-height-panel">
                     <div class="p-4 border-b border-slate-100 flex justify-between items-center gap-4 bg-slate-50/80 shrink-0">
-                        <span id="active-tab-title" class="panel-header-title break-all min-w-0">CONTEÚDO</span>
+                        <select id="source-lang-select" class="panel-header-title bg-transparent border-none outline-none cursor-pointer">
+                            <option value="en">🇺🇸 EN</option>
+                            <option value="pt">🇧🇷 PT</option>
+                        </select>
                         <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm shrink-0">EDITAR</button>
                     </div>
                     
@@ -317,7 +313,15 @@
             <div class="md:col-span-6 w-full flex flex-col min-h-0">
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden flex-1 full-height-panel">
                     <div class="p-4 border-b border-slate-100 bg-slate-50/80 flex justify-between items-center shrink-0">
-                        <h2 class="panel-header-title">TRADUTOR</h2>
+                        <div class="flex items-center gap-2">
+                            <select id="target-lang-select" class="panel-header-title bg-transparent border-none outline-none cursor-pointer">
+                                <option value="pt">🇧🇷 PT</option>
+                                <option value="en">🇺🇸 EN</option>
+                            </select>
+                            <button id="btn-swap-languages" class="p-1 hover:bg-slate-200 rounded-lg transition-colors text-slate-400 hover:text-slate-600" title="Inverter Idiomas">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7 16 3 3 3-3"/><path d="M10 19V5"/><path d="m17 8-3-3-3 3"/><path d="M14 5v14"/></svg>
+                            </button>
+                        </div>
                         <button id="btn-translate-selected" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">TRADUZIR</button>
                     </div>
                     
@@ -364,9 +368,10 @@
         const aiModeCheck = document.getElementById('ai-mode-check');
         const apiKeyInput = document.getElementById('api-key-input');
         const aiErrorBadge = document.getElementById('ai-error-badge');
-        const languageModeSelect = document.getElementById('language-mode-select');
+        const sourceLangSelect = document.getElementById('source-lang-select');
+        const targetLangSelect = document.getElementById('target-lang-select');
+        const btnSwapLanguages = document.getElementById('btn-swap-languages');
         const tabsContainer = document.getElementById('tabs-container');
-        const activeTabTitle = document.getElementById('active-tab-title');
         
         const emptyState = document.getElementById('empty-state');
         const resultState = document.getElementById('result-state');
@@ -382,12 +387,12 @@
             name: "Aba 1", 
             text: "", 
             isEditing: true, 
-            languageMode: 'en-pt',
+            sourceLang: 'en',
+            targetLang: 'pt',
             selectedIndices: [], 
             dictionary: { original: "", translated: "" } 
         }];
         let activeTabId = tabs[0].id;
-        let languageMode = 'en-pt';
         let showControls = false;
         let selectedVoiceIdentifier = '';
         let selectedAiVoiceIdentifier = 'en-US-Neural2-F';
@@ -419,8 +424,11 @@
             const rawText = text.trim();
             if (!rawText) return "";
 
-            const targetLang = languageMode === 'en-pt' ? 'pt' : 'en';
-            const langPair = languageMode === 'en-pt' ? 'en|pt-BR' : 'pt-BR|en';
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            const sourceLang = currentTab?.sourceLang || 'en';
+            const targetLang = currentTab?.targetLang || 'pt';
+
+            const langPair = `${sourceLang === 'pt' ? 'pt-BR' : sourceLang}|${targetLang === 'pt' ? 'pt-BR' : targetLang}`;
 
             if (aiModeCheck.checked && apiKeyInput.value.trim()) {
                 try {
@@ -466,7 +474,6 @@
             localStorage.setItem('reader_data_v3', JSON.stringify({ 
                 tabs,
                 activeTabId,
-                languageMode,
                 speed: speedRange.value,
                 showControls,
                 selectedVoiceIdentifier,
@@ -483,10 +490,16 @@
                 const data = JSON.parse(dataRaw);
                 tabs = data.tabs || tabs;
                 tabs.forEach(tab => {
-                    if (!tab.languageMode) tab.languageMode = 'en-pt';
+                    if (tab.languageMode) {
+                        const parts = tab.languageMode.split('-');
+                        tab.sourceLang = parts[0] || 'en';
+                        tab.targetLang = parts[1] || 'pt';
+                        delete tab.languageMode;
+                    }
+                    if (!tab.sourceLang) tab.sourceLang = 'en';
+                    if (!tab.targetLang) tab.targetLang = 'pt';
                 });
                 activeTabId = data.activeTabId || tabs[0].id;
-                languageMode = data.languageMode || 'en-pt';
                 speedRange.value = data.speed || "1.0";
                 speedValue.innerText = speedRange.value + 'x';
                 showControls = !!data.showControls;
@@ -496,7 +509,6 @@
                 apiKeyInput.value = data.apiKey || '';
                 isLoopEnabled = !!data.isLoopEnabled;
 
-                if (languageModeSelect) languageModeSelect.value = languageMode;
                 if (aiVoiceSelect) aiVoiceSelect.value = selectedAiVoiceIdentifier;
             }
             updateLanguageUI();
@@ -517,11 +529,17 @@
         }
 
         function updateLanguageUI() {
-            if (languageMode === 'en-pt') {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (!currentTab) return;
+
+            if (currentTab.sourceLang === 'en') {
                 textInput.placeholder = "Insira o texto em inglês...";
             } else {
                 textInput.placeholder = "Insira o texto em português...";
             }
+
+            if (sourceLangSelect) sourceLangSelect.value = currentTab.sourceLang;
+            if (targetLangSelect) targetLangSelect.value = currentTab.targetLang;
         }
 
         function updateStudyActionsVisibility() {
@@ -729,8 +747,6 @@
                 if (tabs.length > 1) tabEl.appendChild(delBtn);
                 tabsContainer.appendChild(tabEl);
             });
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            activeTabTitle.textContent = currentTab ? currentTab.name.toUpperCase() : "ABA";
         }
 
         function switchTab(id) {
@@ -738,8 +754,6 @@
             stopAudio();
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (currentTab) {
-                languageMode = currentTab.languageMode || 'en-pt';
-                if (languageModeSelect) languageModeSelect.value = languageMode;
                 updateLanguageUI();
                 populateVoices();
 
@@ -787,7 +801,8 @@
                 name: `Aba ${tabs.length + 1}`,
                 text: "",
                 isEditing: true,
-                languageMode: 'en-pt',
+                sourceLang: 'en',
+                targetLang: 'pt',
                 selectedIndices: [],
                 dictionary: { original: "", translated: "" }
             });
@@ -951,7 +966,7 @@
                     currentUtterance.voice = selectedVoice;
                     currentUtterance.lang = selectedVoice.lang;
                 } else {
-                    currentUtterance.lang = languageMode === 'en-pt' ? 'en-US' : 'pt-BR';
+                    currentUtterance.lang = currentTab.sourceLang === 'en' ? 'en-US' : 'pt-BR';
                 }
                 currentUtterance.rate = parseFloat(speedRange.value);
                 currentUtterance.onend = () => {
@@ -978,7 +993,9 @@
             const allVoices = window.speechSynthesis.getVoices();
             if (allVoices.length === 0) return;
 
-            const prefix = languageMode === 'en-pt' ? 'en' : 'pt';
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            const prefix = currentTab?.sourceLang || 'en';
+
             voices = allVoices.filter(v => v.lang.startsWith(prefix));
             if (voices.length === 0) voices = allVoices; // Fallback if no voices found
 
@@ -1009,16 +1026,15 @@
             }
             saveData();
         };
-        languageModeSelect.onchange = () => {
-            languageMode = languageModeSelect.value;
+        sourceLangSelect.onchange = () => {
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (currentTab) {
-                currentTab.languageMode = languageMode;
+                currentTab.sourceLang = sourceLangSelect.value;
             }
             updateLanguageUI();
 
             // Sugerir uma voz de IA adequada para o novo idioma
-            if (languageMode === 'en-pt') {
+            if (currentTab.sourceLang === 'en') {
                 aiVoiceSelect.value = 'en-US-Neural2-F';
             } else {
                 aiVoiceSelect.value = 'pt-BR-Neural2-A';
@@ -1027,6 +1043,35 @@
 
             populateVoices();
             saveData();
+        };
+
+        targetLangSelect.onchange = () => {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (currentTab) {
+                currentTab.targetLang = targetLangSelect.value;
+            }
+            saveData();
+        };
+
+        btnSwapLanguages.onclick = () => {
+            const currentTab = tabs.find(t => t.id === activeTabId);
+            if (currentTab) {
+                const temp = currentTab.sourceLang;
+                currentTab.sourceLang = currentTab.targetLang;
+                currentTab.targetLang = temp;
+
+                updateLanguageUI();
+
+                if (currentTab.sourceLang === 'en') {
+                    aiVoiceSelect.value = 'en-US-Neural2-F';
+                } else {
+                    aiVoiceSelect.value = 'pt-BR-Neural2-A';
+                }
+                selectedAiVoiceIdentifier = aiVoiceSelect.value;
+
+                populateVoices();
+                saveData();
+            }
         };
         aiModeCheck.onchange = () => {
             updateControlsVisibility();

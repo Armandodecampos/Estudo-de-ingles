@@ -142,10 +142,6 @@
         .full-height-panel {
             height: auto;
             min-height: 300px;
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(226, 232, 240, 0.6);
         }
         @media (min-width: 768px) {
             .full-height-panel {
@@ -155,7 +151,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 min-h-screen md:h-screen flex flex-col font-sans text-slate-900 md:overflow-hidden">
+<body class="bg-chalkboard min-h-screen md:h-screen flex flex-col font-sans text-slate-900 md:overflow-hidden">
 
     <!-- Modais de Interface -->
     <div id="confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 hidden">
@@ -192,7 +188,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                 </button>
                 <button id="btn-add-tab" class="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span class="text-xl">+</span>
                 </button>
             </div>
         </div>
@@ -200,31 +196,12 @@
         <!-- Painel de Voz -->
         <div id="controls-section" class="bg-slate-100 p-5 rounded-2xl border border-slate-300 shadow-2xl flex flex-col gap-6 shrink-0 hidden-panel">
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-6">
-                <div class="flex flex-col gap-2 w-full sm:flex-1">
-                    <label class="panel-header-title px-1">Idiomas (Origem → Destino)</label>
-                    <div class="flex items-center gap-2">
-                        <select id="source-lang-select" class="flex-1 bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3 outline-none">
-                            <option value="en">🇺🇸 Inglês</option>
-                            <option value="pt">🇧🇷 Português</option>
-                            <option value="es">🇪🇸 Espanhol</option>
-                            <option value="fr">🇫🇷 Francês</option>
-                            <option value="de">🇩🇪 Alemão</option>
-                            <option value="it">🇮🇹 Italiano</option>
-                            <option value="ja">🇯🇵 Japonês</option>
-                        </select>
-                        <button id="btn-swap-languages" class="w-10 h-10 flex items-center justify-center bg-white border border-slate-300 text-slate-500 hover:text-blue-600 rounded-xl transition-all shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4-4 4-4"></path><path d="M3 17h18"></path><path d="m17 3 4 4-4 4"></path><path d="M21 7H3"></path></svg>
-                        </button>
-                        <select id="target-lang-select" class="flex-1 bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3 outline-none">
-                            <option value="pt">🇧🇷 Português</option>
-                            <option value="en">🇺🇸 Inglês</option>
-                            <option value="es">🇪🇸 Espanhol</option>
-                            <option value="fr">🇫🇷 Francês</option>
-                            <option value="de">🇩🇪 Alemão</option>
-                            <option value="it">🇮🇹 Italiano</option>
-                            <option value="ja">🇯🇵 Japonês</option>
-                        </select>
-                    </div>
+                <div class="flex flex-col gap-2 w-full sm:w-48">
+                    <label class="panel-header-title px-1">Direção</label>
+                    <select id="language-mode-select" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-xl h-[44px] px-3.5 outline-none">
+                        <option value="en-pt">🇺🇸 EN → 🇧🇷 PT</option>
+                        <option value="pt-en">🇧🇷 PT → 🇺🇸 EN</option>
+                    </select>
                 </div>
                 <div class="flex flex-col gap-2 flex-1">
                     <label id="voice-label" class="panel-header-title px-1">Voz do Sistema</label>
@@ -312,16 +289,8 @@
             <div class="md:col-span-6 w-full flex flex-col min-h-0">
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col flex-1 relative full-height-panel">
                     <div class="p-4 border-b border-slate-100 flex justify-between items-center gap-4 bg-slate-50/80 shrink-0">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span id="active-tab-title" class="panel-header-title break-all min-w-0">CONTEÚDO</span>
-                            <button id="btn-clear-text" class="text-slate-400 hover:text-red-500 transition-colors" title="Limpar texto">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path></svg>
-                            </button>
-                        </div>
-                        <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm shrink-0 gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                            <span>EDITAR</span>
-                        </button>
+                        <span id="active-tab-title" class="panel-header-title break-all min-w-0">CONTEÚDO</span>
+                        <button id="btn-edit-text" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm shrink-0">EDITAR</button>
                     </div>
                     
                     <div id="text-container" class="relative flex-1 overflow-y-auto no-scrollbar">
@@ -349,18 +318,7 @@
                 <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden flex-1 full-height-panel">
                     <div class="p-4 border-b border-slate-100 bg-slate-50/80 flex justify-between items-center shrink-0">
                         <h2 class="panel-header-title">TRADUTOR</h2>
-                        <div class="flex items-center gap-2">
-                            <button id="btn-speak-translation" class="w-10 h-10 flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-xl transition-all hidden" title="Ouvir tradução">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                            </button>
-                            <button id="btn-copy-translation" class="w-10 h-10 flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-xl transition-all hidden" title="Copiar tradução">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            </button>
-                            <button id="btn-translate-selected" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5h12M2 9h12M2 13h12M2 17h12M18 5v14M22 5v14"></path><path d="M2 5h12M2 9h12M2 13h12M2 17h12"></path><polyline points="5 8 2 5 5 2"></polyline><polyline points="11 8 14 5 11 2"></polyline></svg>
-                                <span>TRADUZIR</span>
-                            </button>
-                        </div>
+                        <button id="btn-translate-selected" class="btn-standard bg-blue-600 hover:bg-blue-700 text-white shadow-sm">TRADUZIR</button>
                     </div>
                     
                     <div id="translation-content" class="flex-1 overflow-y-auto no-scrollbar bg-white relative">
@@ -392,9 +350,6 @@
         const textDisplay = document.getElementById('text-display');
         const btnEditText = document.getElementById('btn-edit-text');
         const btnTranslateSelected = document.getElementById('btn-translate-selected');
-        const btnClearText = document.getElementById('btn-clear-text');
-        const btnSpeakTranslation = document.getElementById('btn-speak-translation');
-        const btnCopyTranslation = document.getElementById('btn-copy-translation');
         const btnToggleAll = document.getElementById('btn-toggle-all');
         const btnLoopSelection = document.getElementById('btn-loop-selection');
         const btnSpeakSelection = document.getElementById('btn-speak-selection');
@@ -409,9 +364,7 @@
         const aiModeCheck = document.getElementById('ai-mode-check');
         const apiKeyInput = document.getElementById('api-key-input');
         const aiErrorBadge = document.getElementById('ai-error-badge');
-        const sourceLangSelect = document.getElementById('source-lang-select');
-        const targetLangSelect = document.getElementById('target-lang-select');
-        const btnSwapLanguages = document.getElementById('btn-swap-languages');
+        const languageModeSelect = document.getElementById('language-mode-select');
         const tabsContainer = document.getElementById('tabs-container');
         const activeTabTitle = document.getElementById('active-tab-title');
         
@@ -429,14 +382,12 @@
             name: "Aba 1", 
             text: "", 
             isEditing: true, 
-            sourceLang: 'en',
-            targetLang: 'pt',
+            languageMode: 'en-pt',
             selectedIndices: [], 
             dictionary: { original: "", translated: "" } 
         }];
         let activeTabId = tabs[0].id;
-        let sourceLang = 'en';
-        let targetLang = 'pt';
+        let languageMode = 'en-pt';
         let showControls = false;
         let selectedVoiceIdentifier = '';
         let selectedAiVoiceIdentifier = 'en-US-Neural2-F';
@@ -468,7 +419,8 @@
             const rawText = text.trim();
             if (!rawText) return "";
 
-            const langPair = `${sourceLang}|${targetLang}`;
+            const targetLang = languageMode === 'en-pt' ? 'pt' : 'en';
+            const langPair = languageMode === 'en-pt' ? 'en|pt-BR' : 'pt-BR|en';
 
             if (aiModeCheck.checked && apiKeyInput.value.trim()) {
                 try {
@@ -503,9 +455,7 @@
             }
 
             try {
-                // MyMemory use pt-BR for Portuguese
-                const pair = `${sourceLang === 'pt' ? 'pt-BR' : sourceLang}|${targetLang === 'pt' ? 'pt-BR' : targetLang}`;
-                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawText)}&langpair=${pair}&mt=1`;
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(rawText)}&langpair=${langPair}&mt=1`;
                 const response = await fetch(url);
                 const data = await response.json();
                 return data.responseData?.translatedText || "Tradução indisponível.";
@@ -516,8 +466,7 @@
             localStorage.setItem('reader_data_v3', JSON.stringify({ 
                 tabs,
                 activeTabId,
-                sourceLang,
-                targetLang,
+                languageMode,
                 speed: speedRange.value,
                 showControls,
                 selectedVoiceIdentifier,
@@ -534,18 +483,10 @@
                 const data = JSON.parse(dataRaw);
                 tabs = data.tabs || tabs;
                 tabs.forEach(tab => {
-                    if (tab.languageMode) {
-                        const [s, t] = tab.languageMode.split('-');
-                        tab.sourceLang = s || 'en';
-                        tab.targetLang = t || 'pt';
-                        delete tab.languageMode;
-                    }
-                    if (!tab.sourceLang) tab.sourceLang = 'en';
-                    if (!tab.targetLang) tab.targetLang = 'pt';
+                    if (!tab.languageMode) tab.languageMode = 'en-pt';
                 });
                 activeTabId = data.activeTabId || tabs[0].id;
-                sourceLang = data.sourceLang || 'en';
-                targetLang = data.targetLang || 'pt';
+                languageMode = data.languageMode || 'en-pt';
                 speedRange.value = data.speed || "1.0";
                 speedValue.innerText = speedRange.value + 'x';
                 showControls = !!data.showControls;
@@ -555,8 +496,7 @@
                 apiKeyInput.value = data.apiKey || '';
                 isLoopEnabled = !!data.isLoopEnabled;
 
-                if (sourceLangSelect) sourceLangSelect.value = sourceLang;
-                if (targetLangSelect) targetLangSelect.value = targetLang;
+                if (languageModeSelect) languageModeSelect.value = languageMode;
                 if (aiVoiceSelect) aiVoiceSelect.value = selectedAiVoiceIdentifier;
             }
             updateLanguageUI();
@@ -577,17 +517,11 @@
         }
 
         function updateLanguageUI() {
-            const langNames = {
-                'en': 'inglês',
-                'pt': 'português',
-                'es': 'espanhol',
-                'fr': 'francês',
-                'de': 'alemão',
-                'it': 'italiano',
-                'ja': 'japonês'
-            };
-            const sourceName = langNames[sourceLang] || sourceLang;
-            textInput.placeholder = `Insira o texto em ${sourceName}...`;
+            if (languageMode === 'en-pt') {
+                textInput.placeholder = "Insira o texto em inglês...";
+            } else {
+                textInput.placeholder = "Insira o texto em português...";
+            }
         }
 
         function updateStudyActionsVisibility() {
@@ -604,14 +538,10 @@
             if (!currentTab.dictionary.original) {
                 resultState.classList.add('hidden');
                 emptyState.classList.remove('hidden');
-                btnSpeakTranslation.classList.add('hidden');
-                btnCopyTranslation.classList.add('hidden');
             } else {
                 emptyState.classList.add('hidden');
                 resultState.classList.remove('hidden');
                 translatedTextDisplay.innerText = currentTab.dictionary.translated || "...";
-                btnSpeakTranslation.classList.remove('hidden');
-                btnCopyTranslation.classList.remove('hidden');
             }
         }
 
@@ -808,10 +738,8 @@
             stopAudio();
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (currentTab) {
-                sourceLang = currentTab.sourceLang || 'en';
-                targetLang = currentTab.targetLang || 'pt';
-                if (sourceLangSelect) sourceLangSelect.value = sourceLang;
-                if (targetLangSelect) targetLangSelect.value = targetLang;
+                languageMode = currentTab.languageMode || 'en-pt';
+                if (languageModeSelect) languageModeSelect.value = languageMode;
                 updateLanguageUI();
                 populateVoices();
 
@@ -832,25 +760,6 @@
             stopAudio();
             saveData();
             switchTab(activeTabId);
-        };
-
-        btnClearText.onclick = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (currentTab) {
-                currentTab.text = "";
-                currentTab.dictionary = { original: "", translated: "" };
-                currentTab.selectedIndices = [];
-                textInput.value = "";
-                updateDisplay();
-                saveData();
-            }
-        };
-
-        btnCopyTranslation.onclick = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (currentTab && currentTab.dictionary.translated) {
-                navigator.clipboard.writeText(currentTab.dictionary.translated);
-            }
         };
 
         btnTranslateSelected.onclick = async () => {
@@ -878,8 +787,7 @@
                 name: `Aba ${tabs.length + 1}`,
                 text: "",
                 isEditing: true,
-                sourceLang: 'en',
-                targetLang: 'pt',
+                languageMode: 'en-pt',
                 selectedIndices: [],
                 dictionary: { original: "", translated: "" }
             });
@@ -974,11 +882,10 @@
 
         btnStopSelection.onclick = stopAudio;
 
-        async function playSelection(customText = null, customLang = null) {
+        async function playSelection() {
             const currentTab = tabs.find(t => t.id === activeTabId);
             const all = Array.from(textDisplay.querySelectorAll('span'));
-            const text = customText || currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent.trim() || "").join(' ');
-            const targetLanguage = customLang || sourceLang;
+            const text = currentTab.selectedIndices.map(i => all.find(s => parseInt(s.dataset.index) === i)?.textContent.trim() || "").join(' ');
 
             if (!text.trim()) return;
 
@@ -986,17 +893,8 @@
 
             if (aiModeCheck.checked && apiKeyInput.value.trim()) {
                 try {
-                    // Try to find a voice for the targetLanguage
-                    let selectedAiVoice = aiVoiceSelect.value;
-                    let langCode = selectedAiVoice.split('-').slice(0, 2).join('-');
-
-                    if (customLang && !selectedAiVoice.startsWith(customLang)) {
-                        // Fallback to a default voice for the custom language if possible
-                        const voiceMap = { 'en': 'en-US-Neural2-F', 'pt': 'pt-BR-Neural2-A', 'es': 'es-ES-Neural2-A', 'fr': 'fr-FR-Neural2-A', 'de': 'de-DE-Neural2-A', 'it': 'it-IT-Neural2-A', 'ja': 'ja-JP-Neural2-A' };
-                        selectedAiVoice = voiceMap[customLang] || selectedAiVoice;
-                        langCode = selectedAiVoice.split('-').slice(0, 2).join('-');
-                    }
-
+                    const selectedAiVoice = aiVoiceSelect.value;
+                    const langCode = selectedAiVoice.split('-').slice(0, 2).join('-');
                     currentAiBaseRate = Math.max(0.25, Math.min(4.0, parseFloat(speedRange.value)));
 
                     const url = `https://texttospeech.googleapis.com/v1/text:synthesize?key=${apiKeyInput.value.trim()}`;
@@ -1026,8 +924,8 @@
                         currentAiAudio.playbackRate = parseFloat(speedRange.value) / currentAiBaseRate;
                         currentAiAudio.onended = () => {
                             URL.revokeObjectURL(audioUrl);
-                            if (isLoopEnabled && !customText) {
-                                loopTimeout = setTimeout(() => playSelection(customText, customLang), 500);
+                            if (isLoopEnabled) {
+                                loopTimeout = setTimeout(playSelection, 500);
                             }
                         };
                         currentAiAudio.play();
@@ -1048,24 +946,17 @@
 
             const startSpeech = () => {
                 currentUtterance = new SpeechSynthesisUtterance(text);
-
-                // If customLang, try to find a voice for it
-                let selectedVoice = voices.find(v => (v.voiceURI || v.name) === voiceSelect.value);
-                if (customLang && (!selectedVoice || !selectedVoice.lang.startsWith(customLang))) {
-                    const allVoices = window.speechSynthesis.getVoices();
-                    selectedVoice = allVoices.find(v => v.lang.startsWith(customLang)) || selectedVoice;
-                }
-
+                const selectedVoice = voices.find(v => (v.voiceURI || v.name) === voiceSelect.value);
                 if (selectedVoice) {
                     currentUtterance.voice = selectedVoice;
                     currentUtterance.lang = selectedVoice.lang;
                 } else {
-                    currentUtterance.lang = targetLanguage === 'en' ? 'en-US' : (targetLanguage === 'pt' ? 'pt-BR' : targetLanguage);
+                    currentUtterance.lang = languageMode === 'en-pt' ? 'en-US' : 'pt-BR';
                 }
                 currentUtterance.rate = parseFloat(speedRange.value);
                 currentUtterance.onend = () => {
-                    if (isLoopEnabled && !customText) {
-                        loopTimeout = setTimeout(() => playSelection(customText, customLang), 500);
+                    if (isLoopEnabled) {
+                        loopTimeout = setTimeout(playSelection, 500);
                     }
                 };
                 window.speechSynthesis.speak(currentUtterance);
@@ -1081,20 +972,13 @@
             }
         }
 
-        btnSpeakSelection.onclick = () => playSelection();
-
-        btnSpeakTranslation.onclick = () => {
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (currentTab && currentTab.dictionary.translated) {
-                playSelection(currentTab.dictionary.translated, targetLang);
-            }
-        };
+        btnSpeakSelection.onclick = playSelection;
 
         function populateVoices() {
             const allVoices = window.speechSynthesis.getVoices();
             if (allVoices.length === 0) return;
 
-            const prefix = sourceLang;
+            const prefix = languageMode === 'en-pt' ? 'en' : 'pt';
             voices = allVoices.filter(v => v.lang.startsWith(prefix));
             if (voices.length === 0) voices = allVoices; // Fallback if no voices found
 
@@ -1125,52 +1009,23 @@
             }
             saveData();
         };
-        sourceLangSelect.onchange = () => {
-            sourceLang = sourceLangSelect.value;
+        languageModeSelect.onchange = () => {
+            languageMode = languageModeSelect.value;
             const currentTab = tabs.find(t => t.id === activeTabId);
             if (currentTab) {
-                currentTab.sourceLang = sourceLang;
+                currentTab.languageMode = languageMode;
             }
             updateLanguageUI();
-            populateVoices();
-            saveData();
-        };
 
-        targetLangSelect.onchange = () => {
-            targetLang = targetLangSelect.value;
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (currentTab) {
-                currentTab.targetLang = targetLang;
+            // Sugerir uma voz de IA adequada para o novo idioma
+            if (languageMode === 'en-pt') {
+                aiVoiceSelect.value = 'en-US-Neural2-F';
+            } else {
+                aiVoiceSelect.value = 'pt-BR-Neural2-A';
             }
-            saveData();
-        };
+            selectedAiVoiceIdentifier = aiVoiceSelect.value;
 
-        btnSwapLanguages.onclick = () => {
-            const temp = sourceLang;
-            sourceLang = targetLang;
-            targetLang = temp;
-
-            sourceLangSelect.value = sourceLang;
-            targetLangSelect.value = targetLang;
-
-            const currentTab = tabs.find(t => t.id === activeTabId);
-            if (currentTab) {
-                currentTab.sourceLang = sourceLang;
-                currentTab.targetLang = targetLang;
-
-                // Also swap text if logical
-                if (currentTab.dictionary.translated && currentTab.dictionary.translated !== "...") {
-                    const oldText = currentTab.text;
-                    currentTab.text = currentTab.dictionary.translated;
-                    currentTab.dictionary.original = currentTab.text;
-                    currentTab.dictionary.translated = oldText;
-                    textInput.value = currentTab.text;
-                }
-            }
-
-            updateLanguageUI();
             populateVoices();
-            updateDisplay();
             saveData();
         };
         aiModeCheck.onchange = () => {
